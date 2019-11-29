@@ -1,0 +1,2427 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.4.0"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
+                 xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
+                 xmlns:q1="clr-namespace:Bonsai.Numerics;assembly=Bonsai.Numerics"
+                 xmlns:q2="clr-namespace:Bonsai.Numerics.Distributions;assembly=Bonsai.Numerics"
+                 xmlns:mx="clr-namespace:Bonsai.DAQmx;assembly=Bonsai.DAQmx"
+                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
+                 xmlns:q3="clr-namespace:;assembly=Extensions"
+                 xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
+                 xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:q4="clr-namespace:Bonsai.Harp;assembly=Bonsai.Harp"
+                 xmlns:q5="clr-namespace:Bonsai.Harp.CF;assembly=Bonsai.Harp.CF"
+                 xmlns:scr="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting"
+                 xmlns:bv="clr-namespace:BonVision;assembly=BonVision"
+                 xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                 xmlns:q6="clr-namespace:Bonsai.PointGrey;assembly=Bonsai.PointGrey"
+                 xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
+                 xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:CreateWindow">
+          <gl:Width>640</gl:Width>
+          <gl:Height>480</gl:Height>
+          <gl:VSync>On</gl:VSync>
+          <gl:SwapSync>false</gl:SwapSync>
+          <gl:ClearColor>Black</gl:ClearColor>
+          <gl:ClearMask>DepthBufferBit ColorBufferBit</gl:ClearMask>
+          <gl:CursorVisible>true</gl:CursorVisible>
+          <gl:Location xsi:nil="true" />
+          <gl:WindowBorder>Hidden</gl:WindowBorder>
+          <gl:WindowState>Fullscreen</gl:WindowState>
+          <gl:DisplayDevice>Second</gl:DisplayDevice>
+          <gl:TargetRenderFrequency>0</gl:TargetRenderFrequency>
+          <gl:RenderState />
+          <gl:GraphicsMode>
+            <gl:ColorFormat>
+              <gl:Red>8</gl:Red>
+              <gl:Green>8</gl:Green>
+              <gl:Blue>8</gl:Blue>
+              <gl:Alpha>8</gl:Alpha>
+            </gl:ColorFormat>
+            <gl:Depth>16</gl:Depth>
+            <gl:Stencil>0</gl:Stencil>
+            <gl:Samples>0</gl:Samples>
+            <gl:AccumulatorFormat>
+              <gl:Red>0</gl:Red>
+              <gl:Green>0</gl:Green>
+              <gl:Blue>0</gl:Blue>
+              <gl:Alpha>0</gl:Alpha>
+            </gl:AccumulatorFormat>
+            <gl:Buffers>2</gl:Buffers>
+            <gl:Stereo>false</gl:Stereo>
+          </gl:GraphicsMode>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>BonVisionResources</Name>
+        <Description>Loads mesh and shader resources for rendering primitive stimuli.</Description>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:UpdateRenderState">
+                <gl:RenderState>
+                  <gl:StateConfiguration xsi:type="gl:EnableState">
+                    <gl:Capability>Blend</gl:Capability>
+                  </gl:StateConfiguration>
+                  <gl:StateConfiguration xsi:type="gl:BlendFunctionState">
+                    <gl:SourceFactor>SrcAlpha</gl:SourceFactor>
+                    <gl:DestinationFactor>OneMinusSrcAlpha</gl:DestinationFactor>
+                  </gl:StateConfiguration>
+                  <gl:StateConfiguration xsi:type="gl:DepthFunctionState">
+                    <gl:Function>Lequal</gl:Function>
+                  </gl:StateConfiguration>
+                </gl:RenderState>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="NestedWorkflow">
+              <Name>InternalResources</Name>
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="WorkflowInput">
+                    <Name>Source1</Name>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="gl:MeshResources">
+                      <gl:Meshes>
+                        <gl:MeshConfiguration xsi:type="gl:TexturedModel">
+                          <gl:Name>Quad</gl:Name>
+                          <gl:FileName>BonVision:Models.Quad.obj</gl:FileName>
+                        </gl:MeshConfiguration>
+                        <gl:MeshConfiguration xsi:type="gl:TexturedQuad">
+                          <gl:Name>ViewportQuad</gl:Name>
+                          <gl:QuadEffects>None</gl:QuadEffects>
+                        </gl:MeshConfiguration>
+                        <gl:MeshConfiguration>
+                          <gl:Name>MeshMap</gl:Name>
+                        </gl:MeshConfiguration>
+                        <gl:MeshConfiguration>
+                          <gl:Name>SphereMap</gl:Name>
+                        </gl:MeshConfiguration>
+                      </gl:Meshes>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="1" Label="Source1" />
+                  <Edge From="1" To="2" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:MeshResources">
+                <gl:Meshes>
+                  <gl:MeshConfiguration xsi:type="gl:TexturedModel">
+                    <gl:Name>Plane</gl:Name>
+                    <gl:FileName>BonVision:Models.Plane.obj</gl:FileName>
+                  </gl:MeshConfiguration>
+                </gl:Meshes>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:ShaderResources">
+                <gl:Shaders>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>Checkerboard</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings />
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.Quad.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.Checkerboard.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>Image</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings>
+                      <gl:BufferBinding xsi:type="gl:TextureBinding">
+                        <gl:Name>tex</gl:Name>
+                        <gl:TextureSlot>Texture0</gl:TextureSlot>
+                        <gl:TextureTarget>Texture2D</gl:TextureTarget>
+                      </gl:BufferBinding>
+                    </gl:BufferBindings>
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.Quad.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.Image.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>Gratings</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings />
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.Quad.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.Gratings.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>Color</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings />
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.Quad.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.Color.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>Circle</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings />
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.Quad.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.Circle.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>CircleArray</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings />
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.QuadArray.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.Circle.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>Gamma</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings>
+                      <gl:BufferBinding xsi:type="gl:TextureBinding">
+                        <gl:Name>tex</gl:Name>
+                        <gl:TextureSlot>Texture0</gl:TextureSlot>
+                        <gl:TextureTarget>Texture2D</gl:TextureTarget>
+                      </gl:BufferBinding>
+                      <gl:BufferBinding xsi:type="gl:TextureBinding">
+                        <gl:Name>lut</gl:Name>
+                        <gl:TextureSlot>Texture1</gl:TextureSlot>
+                        <gl:TextureTarget>Texture2D</gl:TextureTarget>
+                      </gl:BufferBinding>
+                    </gl:BufferBindings>
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.Quad.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.Gamma.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>MeshMap</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings />
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.MeshMap.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.MeshMap.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>SphereMap</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings>
+                      <gl:BufferBinding xsi:type="gl:TextureBinding">
+                        <gl:Name>tex</gl:Name>
+                        <gl:TextureSlot>Texture0</gl:TextureSlot>
+                        <gl:TextureTarget>TextureCubeMap</gl:TextureTarget>
+                      </gl:BufferBinding>
+                    </gl:BufferBindings>
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.SphereMap.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.SphereMap.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>Model</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings />
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.Model.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.Model.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                  <gl:ShaderConfiguration xsi:type="gl:Material">
+                    <gl:Name>TexturedModel</gl:Name>
+                    <gl:RenderState />
+                    <gl:ShaderUniforms />
+                    <gl:BufferBindings>
+                      <gl:BufferBinding xsi:type="gl:TextureBinding">
+                        <gl:Name>tex</gl:Name>
+                        <gl:TextureSlot>Texture0</gl:TextureSlot>
+                        <gl:TextureTarget>Texture2D</gl:TextureTarget>
+                      </gl:BufferBinding>
+                    </gl:BufferBindings>
+                    <gl:FramebufferAttachments />
+                    <gl:VertexShader>BonVision:Shaders.TexturedModel.vert</gl:VertexShader>
+                    <gl:FragmentShader>BonVision:Shaders.TexturedModel.frag</gl:FragmentShader>
+                  </gl:ShaderConfiguration>
+                </gl:Shaders>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="3" To="4" Label="Source1" />
+            <Edge From="4" To="5" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:ShaderResources">
+          <gl:Shaders>
+            <gl:ShaderConfiguration xsi:type="gl:Material">
+              <gl:Name>RotationGratings</gl:Name>
+              <gl:RenderState />
+              <gl:ShaderUniforms />
+              <gl:BufferBindings />
+              <gl:FramebufferAttachments />
+              <gl:VertexShader>Shaders\Quad.vert</gl:VertexShader>
+              <gl:FragmentShader>BonVision:Shaders.Gratings.frag</gl:FragmentShader>
+            </gl:ShaderConfiguration>
+          </gl:Shaders>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="res:LoadResources" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:CreateRandom">
+          <q1:Seed xsi:nil="true" />
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="AsyncSubject">
+        <Name>Random</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q2:CreateDiscreteUniform">
+          <q2:Lower>0</q2:Lower>
+          <q2:Upper>1</q2:Upper>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="AsyncSubject">
+        <Name>RewardDistribution</Name>
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>NI-DAQ</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="Channels" />
+              <Property Name="SampleRate" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="mx:AnalogInput">
+                <mx:SignalSource />
+                <mx:SampleRate>10000</mx:SampleRate>
+                <mx:ActiveEdge>Rising</mx:ActiveEdge>
+                <mx:SampleMode>ContinuousSamples</mx:SampleMode>
+                <mx:BufferSize>10</mx:BufferSize>
+                <mx:SamplesPerRead>-1</mx:SamplesPerRead>
+                <mx:Channels>
+                  <mx:AnalogInputChannelConfiguration>
+                    <mx:ChannelName>EncoderA</mx:ChannelName>
+                    <mx:MinimumValue>-10</mx:MinimumValue>
+                    <mx:MaximumValue>10</mx:MaximumValue>
+                    <mx:PhysicalChannel>Dev1/ai0</mx:PhysicalChannel>
+                    <mx:TerminalConfiguration>Rse</mx:TerminalConfiguration>
+                    <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                  </mx:AnalogInputChannelConfiguration>
+                  <mx:AnalogInputChannelConfiguration>
+                    <mx:ChannelName>EncoderB</mx:ChannelName>
+                    <mx:MinimumValue>-10</mx:MinimumValue>
+                    <mx:MaximumValue>10</mx:MaximumValue>
+                    <mx:PhysicalChannel>Dev1/ai1</mx:PhysicalChannel>
+                    <mx:TerminalConfiguration>Rse</mx:TerminalConfiguration>
+                    <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                  </mx:AnalogInputChannelConfiguration>
+                  <mx:AnalogInputChannelConfiguration>
+                    <mx:ChannelName>Photodiode</mx:ChannelName>
+                    <mx:MinimumValue>-10</mx:MinimumValue>
+                    <mx:MaximumValue>10</mx:MaximumValue>
+                    <mx:PhysicalChannel>Dev1/ai2</mx:PhysicalChannel>
+                    <mx:TerminalConfiguration>Rse</mx:TerminalConfiguration>
+                    <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                  </mx:AnalogInputChannelConfiguration>
+                  <mx:AnalogInputChannelConfiguration>
+                    <mx:ChannelName>Stimulation</mx:ChannelName>
+                    <mx:MinimumValue>-10</mx:MinimumValue>
+                    <mx:MaximumValue>10</mx:MaximumValue>
+                    <mx:PhysicalChannel>Dev1/ai3</mx:PhysicalChannel>
+                    <mx:TerminalConfiguration>Differential</mx:TerminalConfiguration>
+                    <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                  </mx:AnalogInputChannelConfiguration>
+                  <mx:AnalogInputChannelConfiguration>
+                    <mx:ChannelName>Exposure</mx:ChannelName>
+                    <mx:MinimumValue>-10</mx:MinimumValue>
+                    <mx:MaximumValue>10</mx:MaximumValue>
+                    <mx:PhysicalChannel>Dev1/ai4</mx:PhysicalChannel>
+                    <mx:TerminalConfiguration>Differential</mx:TerminalConfiguration>
+                    <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                  </mx:AnalogInputChannelConfiguration>
+                  <mx:AnalogInputChannelConfiguration>
+                    <mx:ChannelName>UV</mx:ChannelName>
+                    <mx:MinimumValue>-10</mx:MinimumValue>
+                    <mx:MaximumValue>10</mx:MaximumValue>
+                    <mx:PhysicalChannel>Dev1/ai5</mx:PhysicalChannel>
+                    <mx:TerminalConfiguration>Differential</mx:TerminalConfiguration>
+                    <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                  </mx:AnalogInputChannelConfiguration>
+                  <mx:AnalogInputChannelConfiguration>
+                    <mx:ChannelName>Blue</mx:ChannelName>
+                    <mx:MinimumValue>-10</mx:MinimumValue>
+                    <mx:MaximumValue>10</mx:MaximumValue>
+                    <mx:PhysicalChannel>Dev1/ai6</mx:PhysicalChannel>
+                    <mx:TerminalConfiguration>Differential</mx:TerminalConfiguration>
+                    <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                  </mx:AnalogInputChannelConfiguration>
+                  <mx:AnalogInputChannelConfiguration>
+                    <mx:ChannelName>StartImaging</mx:ChannelName>
+                    <mx:MinimumValue>-10</mx:MinimumValue>
+                    <mx:MaximumValue>10</mx:MaximumValue>
+                    <mx:PhysicalChannel>Dev1/ai7</mx:PhysicalChannel>
+                    <mx:TerminalConfiguration>Differential</mx:TerminalConfiguration>
+                    <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                  </mx:AnalogInputChannelConfiguration>
+                </mx:Channels>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="dsp:MatrixWriter">
+                <dsp:Path>Data\nidaq.bin</dsp:Path>
+                <dsp:Suffix>Timestamp</dsp:Suffix>
+                <dsp:Overwrite>false</dsp:Overwrite>
+                <dsp:Layout>ColumnMajor</dsp:Layout>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="dsp:SelectChannels">
+                <dsp:Channels>
+                  <dsp:int>2</dsp:int>
+                </dsp:Channels>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="dsp:Butterworth">
+                <dsp:SampleRate>10000</dsp:SampleRate>
+                <dsp:Cutoff1>30</dsp:Cutoff1>
+                <dsp:Cutoff2>0</dsp:Cutoff2>
+                <dsp:FilterOrder>3</dsp:FilterOrder>
+                <dsp:FilterType>LowPass</dsp:FilterType>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="PublishSubject">
+              <Name>Photodiode</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="dsp:SelectChannels">
+                <dsp:Channels>
+                  <dsp:int>0</dsp:int>
+                  <dsp:int>1</dsp:int>
+                </dsp:Channels>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:QuadratureEncoder">
+                <q3:VoltageThreshold>1.5</q3:VoltageThreshold>
+                <q3:Step>-1</q3:Step>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="dsp:ConvertFromArray">
+                <dsp:Size>
+                  <dsp:Width>0</dsp:Width>
+                  <dsp:Height>0</dsp:Height>
+                </dsp:Size>
+                <dsp:Depth>S32</dsp:Depth>
+                <dsp:Channels xsi:nil="true" />
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Index">
+              <Operand xsi:type="IntProperty">
+                <Value>0</Value>
+              </Operand>
+            </Expression>
+            <Expression xsi:type="MemberSelector">
+              <Selector>Val0</Selector>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="dsp:Rescale">
+                <dsp:Min>0</dsp:Min>
+                <dsp:Max>500</dsp:Max>
+                <dsp:RangeMin>0</dsp:RangeMin>
+                <dsp:RangeMax>1</dsp:RangeMax>
+                <dsp:RescaleType>Linear</dsp:RescaleType>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="PublishSubject">
+              <Name>Location</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="wie:KeyDown">
+                <wie:Filter>S</wie:Filter>
+                <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="BooleanProperty">
+                <Value>true</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="wie:KeyDown">
+                <wie:Filter>T</wie:Filter>
+                <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="BooleanProperty">
+                <Value>false</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Merge" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="mx:DigitalOutput">
+                <mx:Channels>
+                  <mx:DigitalOutputChannelConfiguration>
+                    <mx:ChannelName>DO_0</mx:ChannelName>
+                    <mx:Grouping>OneChannelForAllLines</mx:Grouping>
+                    <mx:Lines>Dev1/port0/line0</mx:Lines>
+                  </mx:DigitalOutputChannelConfiguration>
+                </mx:Channels>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Visualizer">
+              <Name>Camera Acq Trigger</Name>
+              <Description />
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="WorkflowInput">
+                    <Name>Source1</Name>
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="1" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="2" To="4" Label="Source1" />
+            <Edge From="2" To="7" Label="Source1" />
+            <Edge From="4" To="5" Label="Source1" />
+            <Edge From="5" To="6" Label="Source1" />
+            <Edge From="7" To="8" Label="Source1" />
+            <Edge From="8" To="9" Label="Source1" />
+            <Edge From="9" To="10" Label="Source1" />
+            <Edge From="10" To="11" Label="Source1" />
+            <Edge From="11" To="12" Label="Source1" />
+            <Edge From="12" To="13" Label="Source1" />
+            <Edge From="14" To="15" Label="Source1" />
+            <Edge From="15" To="18" Label="Source1" />
+            <Edge From="16" To="17" Label="Source1" />
+            <Edge From="17" To="18" Label="Source2" />
+            <Edge From="18" To="19" Label="Source1" />
+            <Edge From="19" To="20" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>Harp</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Commands</Name>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="PortName" Category="Harp" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q4:Device">
+                <q4:PortName>COM8</q4:PortName>
+                <q4:DeviceState>Active</q4:DeviceState>
+                <q4:DumpRegisters>true</q4:DumpRegisters>
+                <q4:LedState>On</q4:LedState>
+                <q4:VisualIndicators>On</q4:VisualIndicators>
+                <q4:Heartbeat>Disable</q4:Heartbeat>
+                <q4:IgnoreErrors>false</q4:IgnoreErrors>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="q5:BehaviorEvent">
+              <q5:Type>Input</q5:Type>
+              <q5:Mask>Poke1InfraRedBeam</q5:Mask>
+            </Expression>
+            <Expression xsi:type="PublishSubject">
+              <Name>Lick</Name>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q4:CreateHarpMessage">
+                <q4:MessageType>Write</q4:MessageType>
+                <q4:Address>32</q4:Address>
+                <q4:PayloadType>U8</q4:PayloadType>
+                <q4:Payload>0</q4:Payload>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:IgnoreElements" />
+            </Expression>
+            <Expression xsi:type="BehaviorSubject">
+              <Name>Commands</Name>
+            </Expression>
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="2" Label="Source1" />
+            <Edge From="1" To="2" Label="Source2" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="3" To="4" Label="Source1" />
+            <Edge From="4" To="5" Label="Source1" />
+            <Edge From="6" To="7" Label="Source1" />
+            <Edge From="7" To="8" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>InfiniteCorridor</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:RenderFrame" />
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Location</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q1:Abs" />
+            </Expression>
+            <Expression xsi:type="Mod">
+              <Operand xsi:type="DoubleProperty">
+                <Value>1</Value>
+              </Operand>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Left" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="Add">
+              <Operand xsi:type="DoubleProperty">
+                <Value>1</Value>
+              </Operand>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Right" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.OrthographicViewport.bonsai">
+              <Left>0.628</Left>
+              <Right>1.628</Right>
+              <Bottom>0</Bottom>
+              <Top>1</Top>
+            </Expression>
+            <Expression xsi:type="PublishSubject">
+              <Name>DrawStimuli</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:DrawFramebuffer">
+                <gl:RenderState />
+                <gl:FramebufferAttachments />
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.NormalizedViewport.bonsai" />
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="ColorR" />
+                <Property Name="ColorG" />
+                <Property Name="ColorB" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawQuad.bonsai">
+              <ExtentX>0.4</ExtentX>
+              <ExtentY>0.4</ExtentY>
+              <LocationX>1.5</LocationX>
+              <LocationY>-0.9</LocationY>
+              <ColorR>0.628</ColorR>
+              <ColorG>0.628</ColorG>
+              <ColorB>0.628</ColorB>
+              <ColorA>1</ColorA>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>DrawStimuli</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Location</Name>
+            </Expression>
+            <Expression xsi:type="Add">
+              <Operand xsi:type="DoubleProperty">
+                <Value>10</Value>
+              </Operand>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Random</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q2:CreateContinuousUniform">
+                <q2:Lower>-180</q2:Lower>
+                <q2:Upper>180</q2:Upper>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="Count" DisplayName="NumSegments" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q2:SampleMany">
+                <q2:Count>1000</q2:Count>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q1:DegreeToRadian" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:ToArray" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:CombineLatest" />
+            </Expression>
+            <Expression xsi:type="scr:ExpressionTransform">
+              <scr:Expression>new(
+Item1[int32(Item2) % Item1.Length - 1] as Angle1,
+Item1[int32(Item2) % Item1.Length] as Angle2,
+Item1[int32(Item2) % Item1.Length + 1] as Angle3)</scr:Expression>
+            </Expression>
+            <Expression xsi:type="MemberSelector">
+              <Selector>Angle1</Selector>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Angle" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="GroupWorkflow">
+              <Name>DrawGratings</Name>
+              <Description>Draws parameterized 2D sinewave gratings.</Description>
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="WorkflowInput">
+                    <Name>Source1</Name>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="LocationX" />
+                    <Property Name="LocationY" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Value" DisplayName="Angle" Description="The angle of the grating stimulus." />
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="bv:AngleProperty">
+                      <bv:Value>91.64731</bv:Value>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="Angle" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="SpatialFrequency" />
+                    <Property Name="TemporalFrequency" />
+                    <Property Name="Phase" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="SquareWave" />
+                    <Property Name="Contrast" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Radius" />
+                    <Property Name="Aperture" />
+                    <Property Name="Opacity" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="ExtentX" />
+                    <Property Name="ExtentY" />
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>Transform</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="X" DisplayName="LocationX" />
+                          <Property Name="Y" DisplayName="LocationY" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:Translate">
+                            <gl:Order>Prepend</gl:Order>
+                            <gl:X>0.5</gl:X>
+                            <gl:Y>1</gl:Y>
+                            <gl:Z>0</gl:Z>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="X" DisplayName="ExtentX" />
+                          <Property Name="Y" DisplayName="ExtentY" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:Scale">
+                            <gl:Order>Prepend</gl:Order>
+                            <gl:X>2</gl:X>
+                            <gl:Y>2</gl:Y>
+                            <gl:Z>1</gl:Z>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Angle" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:RotateZ">
+                            <gl:Order>Prepend</gl:Order>
+                            <gl:Angle>1.59954727</gl:Angle>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>transform</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="2" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source2" />
+                        <Edge From="2" To="4" Label="Source1" />
+                        <Edge From="3" To="4" Label="Source2" />
+                        <Edge From="4" To="6" Label="Source1" />
+                        <Edge From="5" To="6" Label="Source2" />
+                        <Edge From="6" To="7" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>PhaseFrequency</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateFrame" />
+                        </Expression>
+                        <Expression xsi:type="MemberSelector">
+                          <Selector>TimeStep.ElapsedTime</Selector>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>single(it)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="TemporalFrequency" Description="The sliding speed of the grating stimulus, in cycles per second." />
+                        </Expression>
+                        <Expression xsi:type="Multiply">
+                          <Operand xsi:type="FloatProperty">
+                            <Value>0</Value>
+                          </Operand>
+                        </Expression>
+                        <Expression xsi:type="rx:Accumulate" />
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="ExtentX" />
+                          <Property Name="ExtentY" />
+                          <Property Name="Angle" />
+                          <Property Name="SpatialFrequency" Description="The spatial frequency of the gratings, in cycles per degree." />
+                        </Expression>
+                        <Expression xsi:type="GroupWorkflow">
+                          <Workflow>
+                            <Nodes>
+                              <Expression xsi:type="WorkflowInput">
+                                <Name>Source1</Name>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="ExtentX" />
+                              </Expression>
+                              <Expression xsi:type="PropertySource" TypeArguments="gl:Scale,sys:Single">
+                                <MemberName>X</MemberName>
+                                <Value>2</Value>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="ExtentY" />
+                              </Expression>
+                              <Expression xsi:type="PropertySource" TypeArguments="gl:Scale,sys:Single">
+                                <MemberName>Y</MemberName>
+                                <Value>2</Value>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="Angle" />
+                              </Expression>
+                              <Expression xsi:type="Combinator">
+                                <Combinator xsi:type="FloatProperty">
+                                  <Value>1.59954727</Value>
+                                </Combinator>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="SpatialFrequency" />
+                              </Expression>
+                              <Expression xsi:type="Combinator">
+                                <Combinator xsi:type="FloatProperty">
+                                  <Value>0.5</Value>
+                                </Combinator>
+                              </Expression>
+                              <Expression xsi:type="Combinator">
+                                <Combinator xsi:type="rx:Zip" />
+                              </Expression>
+                              <Expression xsi:type="scr:ExpressionTransform">
+                                <scr:Expression>single(
+Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
+(Item2 * Math.Sin(Item4) * Item2 * Math.Sin(Item4))) * Item3
+)</scr:Expression>
+                              </Expression>
+                              <Expression xsi:type="WorkflowOutput" />
+                            </Nodes>
+                            <Edges>
+                              <Edge From="0" To="2" Label="Source1" />
+                              <Edge From="0" To="4" Label="Source1" />
+                              <Edge From="0" To="6" Label="Source1" />
+                              <Edge From="0" To="8" Label="Source1" />
+                              <Edge From="1" To="2" Label="Source2" />
+                              <Edge From="2" To="9" Label="Source1" />
+                              <Edge From="3" To="4" Label="Source2" />
+                              <Edge From="4" To="9" Label="Source2" />
+                              <Edge From="5" To="6" Label="Source2" />
+                              <Edge From="6" To="9" Label="Source4" />
+                              <Edge From="7" To="8" Label="Source2" />
+                              <Edge From="8" To="9" Label="Source3" />
+                              <Edge From="9" To="10" Label="Source1" />
+                              <Edge From="10" To="11" Label="Source1" />
+                            </Edges>
+                          </Workflow>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>frequency</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Phase" Description="The optional phase offset of the grating stimulus, in degrees." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="bv:AngleProperty">
+                            <bv:Value>0</bv:Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>it / (2 * Math.PI)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="PropertyMapping">
+                          <PropertyMappings>
+                            <Property Name="Value" />
+                          </PropertyMappings>
+                        </Expression>
+                        <Expression xsi:type="Subtract">
+                          <Operand xsi:type="FloatProperty">
+                            <Value>0</Value>
+                          </Operand>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:WithLatestFrom" />
+                        </Expression>
+                        <Expression xsi:type="MemberSelector">
+                          <Selector>Item2,Item1</Selector>
+                        </Expression>
+                        <Expression xsi:type="Divide" />
+                        <Expression xsi:type="MemberSelector" />
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>phase</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="8" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source1" />
+                        <Edge From="2" To="3" Label="Source1" />
+                        <Edge From="3" To="5" Label="Source1" />
+                        <Edge From="4" To="5" Label="Source2" />
+                        <Edge From="5" To="6" Label="Source1" />
+                        <Edge From="6" To="14" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source2" />
+                        <Edge From="8" To="9" Label="Source1" />
+                        <Edge From="9" To="15" Label="Source1" />
+                        <Edge From="10" To="11" Label="Source1" />
+                        <Edge From="11" To="12" Label="Source1" />
+                        <Edge From="12" To="13" Label="Source1" />
+                        <Edge From="13" To="14" Label="Source2" />
+                        <Edge From="14" To="15" Label="Source2" />
+                        <Edge From="15" To="16" Label="Source1" />
+                        <Edge From="16" To="17" Label="Source1" />
+                        <Edge From="17" To="18" Label="Source1" />
+                        <Edge From="18" To="19" Label="Source1" />
+                        <Edge From="19" To="20" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>Contrast</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="SquareWave" Description="A value specifying whether to use a sine or square wave function as a basis for the stimulus." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="BooleanProperty">
+                            <Value>false</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>it ? 1 : 0</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>square</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Contrast" Description="The contrast of the grating stimulus, where zero is no contrast, and one is maximum contrast." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>1</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>contrast</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="2" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source2" />
+                        <Edge From="2" To="3" Label="Source1" />
+                        <Edge From="3" To="4" Label="Source1" />
+                        <Edge From="4" To="6" Label="Source1" />
+                        <Edge From="5" To="6" Label="Source2" />
+                        <Edge From="6" To="7" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>Border</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Radius" Description="The normalized radius of the clipping mask applied to the stimulus." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>10</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>radius</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Aperture" Description="The optional variance of the gaussian mask applied to the stimulus. A value of zero specifies that no mask should be applied." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>0</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>aperture</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Opacity" Description="The normalized opacity of the stimulus. Zero is fully transparent, and one is fully opaque." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>1</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>opacity</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="2" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source2" />
+                        <Edge From="2" To="3" Label="Source1" />
+                        <Edge From="3" To="5" Label="Source1" />
+                        <Edge From="4" To="5" Label="Source2" />
+                        <Edge From="5" To="6" Label="Source1" />
+                        <Edge From="6" To="8" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source2" />
+                        <Edge From="8" To="9" Label="Source1" />
+                        <Edge From="9" To="10" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="gl:DrawMesh">
+                      <gl:ShaderName>RotationGratings</gl:ShaderName>
+                      <gl:MeshName>Quad</gl:MeshName>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="9" Label="Source1" />
+                  <Edge From="1" To="9" Label="Source2" />
+                  <Edge From="2" To="3" Label="Source1" />
+                  <Edge From="3" To="4" Label="Source1" />
+                  <Edge From="4" To="9" Label="Source4" />
+                  <Edge From="4" To="10" Label="Source4" />
+                  <Edge From="5" To="10" Label="Source2" />
+                  <Edge From="6" To="11" Label="Source2" />
+                  <Edge From="7" To="12" Label="Source2" />
+                  <Edge From="8" To="9" Label="Source3" />
+                  <Edge From="8" To="10" Label="Source3" />
+                  <Edge From="9" To="10" Label="Source1" />
+                  <Edge From="10" To="11" Label="Source1" />
+                  <Edge From="11" To="12" Label="Source1" />
+                  <Edge From="12" To="13" Label="Source1" />
+                  <Edge From="13" To="14" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+            <Expression xsi:type="MemberSelector">
+              <Selector>Angle2</Selector>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Angle" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="GroupWorkflow">
+              <Name>DrawGratings</Name>
+              <Description>Draws parameterized 2D sinewave gratings.</Description>
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="WorkflowInput">
+                    <Name>Source1</Name>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="LocationX" />
+                    <Property Name="LocationY" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Value" DisplayName="Angle" Description="The angle of the grating stimulus." />
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="bv:AngleProperty">
+                      <bv:Value>40.33093</bv:Value>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="Angle" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="SpatialFrequency" />
+                    <Property Name="TemporalFrequency" />
+                    <Property Name="Phase" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="SquareWave" />
+                    <Property Name="Contrast" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Radius" />
+                    <Property Name="Aperture" />
+                    <Property Name="Opacity" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="ExtentX" />
+                    <Property Name="ExtentY" />
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>Transform</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="X" DisplayName="LocationX" />
+                          <Property Name="Y" DisplayName="LocationY" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:Translate">
+                            <gl:Order>Prepend</gl:Order>
+                            <gl:X>1.5</gl:X>
+                            <gl:Y>1</gl:Y>
+                            <gl:Z>0</gl:Z>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="X" DisplayName="ExtentX" />
+                          <Property Name="Y" DisplayName="ExtentY" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:Scale">
+                            <gl:Order>Prepend</gl:Order>
+                            <gl:X>2</gl:X>
+                            <gl:Y>2</gl:Y>
+                            <gl:Z>1</gl:Z>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Angle" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:RotateZ">
+                            <gl:Order>Prepend</gl:Order>
+                            <gl:Angle>0.7039075</gl:Angle>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>transform</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="2" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source2" />
+                        <Edge From="2" To="4" Label="Source1" />
+                        <Edge From="3" To="4" Label="Source2" />
+                        <Edge From="4" To="6" Label="Source1" />
+                        <Edge From="5" To="6" Label="Source2" />
+                        <Edge From="6" To="7" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>PhaseFrequency</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateFrame" />
+                        </Expression>
+                        <Expression xsi:type="MemberSelector">
+                          <Selector>TimeStep.ElapsedTime</Selector>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>single(it)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="TemporalFrequency" Description="The sliding speed of the grating stimulus, in cycles per second." />
+                        </Expression>
+                        <Expression xsi:type="Multiply">
+                          <Operand xsi:type="FloatProperty">
+                            <Value>0</Value>
+                          </Operand>
+                        </Expression>
+                        <Expression xsi:type="rx:Accumulate" />
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="ExtentX" />
+                          <Property Name="ExtentY" />
+                          <Property Name="Angle" />
+                          <Property Name="SpatialFrequency" Description="The spatial frequency of the gratings, in cycles per degree." />
+                        </Expression>
+                        <Expression xsi:type="GroupWorkflow">
+                          <Workflow>
+                            <Nodes>
+                              <Expression xsi:type="WorkflowInput">
+                                <Name>Source1</Name>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="ExtentX" />
+                              </Expression>
+                              <Expression xsi:type="PropertySource" TypeArguments="gl:Scale,sys:Single">
+                                <MemberName>X</MemberName>
+                                <Value>2</Value>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="ExtentY" />
+                              </Expression>
+                              <Expression xsi:type="PropertySource" TypeArguments="gl:Scale,sys:Single">
+                                <MemberName>Y</MemberName>
+                                <Value>2</Value>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="Angle" />
+                              </Expression>
+                              <Expression xsi:type="Combinator">
+                                <Combinator xsi:type="FloatProperty">
+                                  <Value>0.7039075</Value>
+                                </Combinator>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="SpatialFrequency" />
+                              </Expression>
+                              <Expression xsi:type="Combinator">
+                                <Combinator xsi:type="FloatProperty">
+                                  <Value>0.5</Value>
+                                </Combinator>
+                              </Expression>
+                              <Expression xsi:type="Combinator">
+                                <Combinator xsi:type="rx:Zip" />
+                              </Expression>
+                              <Expression xsi:type="scr:ExpressionTransform">
+                                <scr:Expression>single(
+Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
+(Item2 * Math.Sin(Item4) * Item2 * Math.Sin(Item4))) * Item3
+)</scr:Expression>
+                              </Expression>
+                              <Expression xsi:type="WorkflowOutput" />
+                            </Nodes>
+                            <Edges>
+                              <Edge From="0" To="2" Label="Source1" />
+                              <Edge From="0" To="4" Label="Source1" />
+                              <Edge From="0" To="6" Label="Source1" />
+                              <Edge From="0" To="8" Label="Source1" />
+                              <Edge From="1" To="2" Label="Source2" />
+                              <Edge From="2" To="9" Label="Source1" />
+                              <Edge From="3" To="4" Label="Source2" />
+                              <Edge From="4" To="9" Label="Source2" />
+                              <Edge From="5" To="6" Label="Source2" />
+                              <Edge From="6" To="9" Label="Source4" />
+                              <Edge From="7" To="8" Label="Source2" />
+                              <Edge From="8" To="9" Label="Source3" />
+                              <Edge From="9" To="10" Label="Source1" />
+                              <Edge From="10" To="11" Label="Source1" />
+                            </Edges>
+                          </Workflow>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>frequency</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Phase" Description="The optional phase offset of the grating stimulus, in degrees." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="bv:AngleProperty">
+                            <bv:Value>0</bv:Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>it / (2 * Math.PI)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="PropertyMapping">
+                          <PropertyMappings>
+                            <Property Name="Value" />
+                          </PropertyMappings>
+                        </Expression>
+                        <Expression xsi:type="Subtract">
+                          <Operand xsi:type="FloatProperty">
+                            <Value>0</Value>
+                          </Operand>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:WithLatestFrom" />
+                        </Expression>
+                        <Expression xsi:type="MemberSelector">
+                          <Selector>Item2,Item1</Selector>
+                        </Expression>
+                        <Expression xsi:type="Divide" />
+                        <Expression xsi:type="MemberSelector" />
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>phase</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="8" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source1" />
+                        <Edge From="2" To="3" Label="Source1" />
+                        <Edge From="3" To="5" Label="Source1" />
+                        <Edge From="4" To="5" Label="Source2" />
+                        <Edge From="5" To="6" Label="Source1" />
+                        <Edge From="6" To="14" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source2" />
+                        <Edge From="8" To="9" Label="Source1" />
+                        <Edge From="9" To="15" Label="Source1" />
+                        <Edge From="10" To="11" Label="Source1" />
+                        <Edge From="11" To="12" Label="Source1" />
+                        <Edge From="12" To="13" Label="Source1" />
+                        <Edge From="13" To="14" Label="Source2" />
+                        <Edge From="14" To="15" Label="Source2" />
+                        <Edge From="15" To="16" Label="Source1" />
+                        <Edge From="16" To="17" Label="Source1" />
+                        <Edge From="17" To="18" Label="Source1" />
+                        <Edge From="18" To="19" Label="Source1" />
+                        <Edge From="19" To="20" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>Contrast</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="SquareWave" Description="A value specifying whether to use a sine or square wave function as a basis for the stimulus." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="BooleanProperty">
+                            <Value>false</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>it ? 1 : 0</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>square</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Contrast" Description="The contrast of the grating stimulus, where zero is no contrast, and one is maximum contrast." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>1</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>contrast</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="2" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source2" />
+                        <Edge From="2" To="3" Label="Source1" />
+                        <Edge From="3" To="4" Label="Source1" />
+                        <Edge From="4" To="6" Label="Source1" />
+                        <Edge From="5" To="6" Label="Source2" />
+                        <Edge From="6" To="7" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>Border</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Radius" Description="The normalized radius of the clipping mask applied to the stimulus." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>10</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>radius</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Aperture" Description="The optional variance of the gaussian mask applied to the stimulus. A value of zero specifies that no mask should be applied." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>0</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>aperture</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Opacity" Description="The normalized opacity of the stimulus. Zero is fully transparent, and one is fully opaque." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>1</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>opacity</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="2" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source2" />
+                        <Edge From="2" To="3" Label="Source1" />
+                        <Edge From="3" To="5" Label="Source1" />
+                        <Edge From="4" To="5" Label="Source2" />
+                        <Edge From="5" To="6" Label="Source1" />
+                        <Edge From="6" To="8" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source2" />
+                        <Edge From="8" To="9" Label="Source1" />
+                        <Edge From="9" To="10" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="gl:DrawMesh">
+                      <gl:ShaderName>RotationGratings</gl:ShaderName>
+                      <gl:MeshName>Quad</gl:MeshName>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="9" Label="Source1" />
+                  <Edge From="1" To="9" Label="Source2" />
+                  <Edge From="2" To="3" Label="Source1" />
+                  <Edge From="3" To="4" Label="Source1" />
+                  <Edge From="4" To="9" Label="Source4" />
+                  <Edge From="4" To="10" Label="Source4" />
+                  <Edge From="5" To="10" Label="Source2" />
+                  <Edge From="6" To="11" Label="Source2" />
+                  <Edge From="7" To="12" Label="Source2" />
+                  <Edge From="8" To="9" Label="Source3" />
+                  <Edge From="8" To="10" Label="Source3" />
+                  <Edge From="9" To="10" Label="Source1" />
+                  <Edge From="10" To="11" Label="Source1" />
+                  <Edge From="11" To="12" Label="Source1" />
+                  <Edge From="12" To="13" Label="Source1" />
+                  <Edge From="13" To="14" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+            <Expression xsi:type="MemberSelector">
+              <Selector>Angle3</Selector>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Angle" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="GroupWorkflow">
+              <Name>DrawGratings</Name>
+              <Description>Draws parameterized 2D sinewave gratings.</Description>
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="WorkflowInput">
+                    <Name>Source1</Name>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="LocationX" />
+                    <Property Name="LocationY" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Value" DisplayName="Angle" Description="The angle of the grating stimulus." />
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="bv:AngleProperty">
+                      <bv:Value>50.03122</bv:Value>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="Angle" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="SpatialFrequency" />
+                    <Property Name="TemporalFrequency" />
+                    <Property Name="Phase" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="SquareWave" />
+                    <Property Name="Contrast" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Radius" />
+                    <Property Name="Aperture" />
+                    <Property Name="Opacity" />
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="ExtentX" />
+                    <Property Name="ExtentY" />
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>Transform</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="X" DisplayName="LocationX" />
+                          <Property Name="Y" DisplayName="LocationY" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:Translate">
+                            <gl:Order>Prepend</gl:Order>
+                            <gl:X>2.5</gl:X>
+                            <gl:Y>1</gl:Y>
+                            <gl:Z>0</gl:Z>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="X" DisplayName="ExtentX" />
+                          <Property Name="Y" DisplayName="ExtentY" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:Scale">
+                            <gl:Order>Prepend</gl:Order>
+                            <gl:X>2</gl:X>
+                            <gl:Y>2</gl:Y>
+                            <gl:Z>1</gl:Z>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Angle" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:RotateZ">
+                            <gl:Order>Prepend</gl:Order>
+                            <gl:Angle>0.873209536</gl:Angle>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>transform</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="2" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source2" />
+                        <Edge From="2" To="4" Label="Source1" />
+                        <Edge From="3" To="4" Label="Source2" />
+                        <Edge From="4" To="6" Label="Source1" />
+                        <Edge From="5" To="6" Label="Source2" />
+                        <Edge From="6" To="7" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>PhaseFrequency</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateFrame" />
+                        </Expression>
+                        <Expression xsi:type="MemberSelector">
+                          <Selector>TimeStep.ElapsedTime</Selector>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>single(it)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="TemporalFrequency" Description="The sliding speed of the grating stimulus, in cycles per second." />
+                        </Expression>
+                        <Expression xsi:type="Multiply">
+                          <Operand xsi:type="FloatProperty">
+                            <Value>0</Value>
+                          </Operand>
+                        </Expression>
+                        <Expression xsi:type="rx:Accumulate" />
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="ExtentX" />
+                          <Property Name="ExtentY" />
+                          <Property Name="Angle" />
+                          <Property Name="SpatialFrequency" Description="The spatial frequency of the gratings, in cycles per degree." />
+                        </Expression>
+                        <Expression xsi:type="GroupWorkflow">
+                          <Workflow>
+                            <Nodes>
+                              <Expression xsi:type="WorkflowInput">
+                                <Name>Source1</Name>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="ExtentX" />
+                              </Expression>
+                              <Expression xsi:type="PropertySource" TypeArguments="gl:Scale,sys:Single">
+                                <MemberName>X</MemberName>
+                                <Value>2</Value>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="ExtentY" />
+                              </Expression>
+                              <Expression xsi:type="PropertySource" TypeArguments="gl:Scale,sys:Single">
+                                <MemberName>Y</MemberName>
+                                <Value>2</Value>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="Angle" />
+                              </Expression>
+                              <Expression xsi:type="Combinator">
+                                <Combinator xsi:type="FloatProperty">
+                                  <Value>0.873209536</Value>
+                                </Combinator>
+                              </Expression>
+                              <Expression xsi:type="ExternalizedMapping">
+                                <Property Name="Value" DisplayName="SpatialFrequency" />
+                              </Expression>
+                              <Expression xsi:type="Combinator">
+                                <Combinator xsi:type="FloatProperty">
+                                  <Value>0.5</Value>
+                                </Combinator>
+                              </Expression>
+                              <Expression xsi:type="Combinator">
+                                <Combinator xsi:type="rx:Zip" />
+                              </Expression>
+                              <Expression xsi:type="scr:ExpressionTransform">
+                                <scr:Expression>single(
+Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
+(Item2 * Math.Sin(Item4) * Item2 * Math.Sin(Item4))) * Item3
+)</scr:Expression>
+                              </Expression>
+                              <Expression xsi:type="WorkflowOutput" />
+                            </Nodes>
+                            <Edges>
+                              <Edge From="0" To="2" Label="Source1" />
+                              <Edge From="0" To="4" Label="Source1" />
+                              <Edge From="0" To="6" Label="Source1" />
+                              <Edge From="0" To="8" Label="Source1" />
+                              <Edge From="1" To="2" Label="Source2" />
+                              <Edge From="2" To="9" Label="Source1" />
+                              <Edge From="3" To="4" Label="Source2" />
+                              <Edge From="4" To="9" Label="Source2" />
+                              <Edge From="5" To="6" Label="Source2" />
+                              <Edge From="6" To="9" Label="Source4" />
+                              <Edge From="7" To="8" Label="Source2" />
+                              <Edge From="8" To="9" Label="Source3" />
+                              <Edge From="9" To="10" Label="Source1" />
+                              <Edge From="10" To="11" Label="Source1" />
+                            </Edges>
+                          </Workflow>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>frequency</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Phase" Description="The optional phase offset of the grating stimulus, in degrees." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="bv:AngleProperty">
+                            <bv:Value>0</bv:Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>it / (2 * Math.PI)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="PropertyMapping">
+                          <PropertyMappings>
+                            <Property Name="Value" />
+                          </PropertyMappings>
+                        </Expression>
+                        <Expression xsi:type="Subtract">
+                          <Operand xsi:type="FloatProperty">
+                            <Value>0</Value>
+                          </Operand>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:WithLatestFrom" />
+                        </Expression>
+                        <Expression xsi:type="MemberSelector">
+                          <Selector>Item2,Item1</Selector>
+                        </Expression>
+                        <Expression xsi:type="Divide" />
+                        <Expression xsi:type="MemberSelector" />
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>phase</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="8" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source1" />
+                        <Edge From="2" To="3" Label="Source1" />
+                        <Edge From="3" To="5" Label="Source1" />
+                        <Edge From="4" To="5" Label="Source2" />
+                        <Edge From="5" To="6" Label="Source1" />
+                        <Edge From="6" To="14" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source2" />
+                        <Edge From="8" To="9" Label="Source1" />
+                        <Edge From="9" To="15" Label="Source1" />
+                        <Edge From="10" To="11" Label="Source1" />
+                        <Edge From="11" To="12" Label="Source1" />
+                        <Edge From="12" To="13" Label="Source1" />
+                        <Edge From="13" To="14" Label="Source2" />
+                        <Edge From="14" To="15" Label="Source2" />
+                        <Edge From="15" To="16" Label="Source1" />
+                        <Edge From="16" To="17" Label="Source1" />
+                        <Edge From="17" To="18" Label="Source1" />
+                        <Edge From="18" To="19" Label="Source1" />
+                        <Edge From="19" To="20" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>Contrast</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="SquareWave" Description="A value specifying whether to use a sine or square wave function as a basis for the stimulus." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="BooleanProperty">
+                            <Value>false</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>it ? 1 : 0</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>square</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Contrast" Description="The contrast of the grating stimulus, where zero is no contrast, and one is maximum contrast." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>1</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>contrast</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="2" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source2" />
+                        <Edge From="2" To="3" Label="Source1" />
+                        <Edge From="3" To="4" Label="Source1" />
+                        <Edge From="4" To="6" Label="Source1" />
+                        <Edge From="5" To="6" Label="Source2" />
+                        <Edge From="6" To="7" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>Border</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Radius" Description="The normalized radius of the clipping mask applied to the stimulus." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>10</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>radius</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Aperture" Description="The optional variance of the gaussian mask applied to the stimulus. A value of zero specifies that no mask should be applied." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>0</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>aperture</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Opacity" Description="The normalized opacity of the stimulus. Zero is fully transparent, and one is fully opaque." />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>1</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:UpdateUniform">
+                            <gl:UniformName>opacity</gl:UniformName>
+                            <gl:ShaderName>RotationGratings</gl:ShaderName>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="2" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source2" />
+                        <Edge From="2" To="3" Label="Source1" />
+                        <Edge From="3" To="5" Label="Source1" />
+                        <Edge From="4" To="5" Label="Source2" />
+                        <Edge From="5" To="6" Label="Source1" />
+                        <Edge From="6" To="8" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source2" />
+                        <Edge From="8" To="9" Label="Source1" />
+                        <Edge From="9" To="10" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="gl:DrawMesh">
+                      <gl:ShaderName>RotationGratings</gl:ShaderName>
+                      <gl:MeshName>Quad</gl:MeshName>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="9" Label="Source1" />
+                  <Edge From="1" To="9" Label="Source2" />
+                  <Edge From="2" To="3" Label="Source1" />
+                  <Edge From="3" To="4" Label="Source1" />
+                  <Edge From="4" To="9" Label="Source4" />
+                  <Edge From="4" To="10" Label="Source4" />
+                  <Edge From="5" To="10" Label="Source2" />
+                  <Edge From="6" To="11" Label="Source2" />
+                  <Edge From="7" To="12" Label="Source2" />
+                  <Edge From="8" To="9" Label="Source3" />
+                  <Edge From="8" To="10" Label="Source3" />
+                  <Edge From="9" To="10" Label="Source1" />
+                  <Edge From="10" To="11" Label="Source1" />
+                  <Edge From="11" To="12" Label="Source1" />
+                  <Edge From="12" To="13" Label="Source1" />
+                  <Edge From="13" To="14" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="7" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="3" To="4" Label="Source1" />
+            <Edge From="3" To="5" Label="Source1" />
+            <Edge From="3" To="11" Label="Source1" />
+            <Edge From="4" To="7" Label="Source2" />
+            <Edge From="5" To="6" Label="Source1" />
+            <Edge From="6" To="7" Label="Source3" />
+            <Edge From="7" To="8" Label="Source1" />
+            <Edge From="8" To="9" Label="Source1" />
+            <Edge From="9" To="10" Label="Source1" />
+            <Edge From="10" To="12" Label="Source1" />
+            <Edge From="11" To="12" Label="Source2" />
+            <Edge From="13" To="26" Label="Source1" />
+            <Edge From="13" To="29" Label="Source1" />
+            <Edge From="13" To="32" Label="Source1" />
+            <Edge From="14" To="15" Label="Source1" />
+            <Edge From="15" To="22" Label="Source2" />
+            <Edge From="16" To="17" Label="Source1" />
+            <Edge From="17" To="19" Label="Source1" />
+            <Edge From="18" To="19" Label="Source2" />
+            <Edge From="19" To="20" Label="Source1" />
+            <Edge From="20" To="21" Label="Source1" />
+            <Edge From="21" To="22" Label="Source1" />
+            <Edge From="22" To="23" Label="Source1" />
+            <Edge From="23" To="24" Label="Source1" />
+            <Edge From="23" To="27" Label="Source1" />
+            <Edge From="23" To="30" Label="Source1" />
+            <Edge From="24" To="25" Label="Source1" />
+            <Edge From="25" To="26" Label="Source2" />
+            <Edge From="27" To="28" Label="Source1" />
+            <Edge From="28" To="29" Label="Source2" />
+            <Edge From="30" To="31" Label="Source1" />
+            <Edge From="31" To="32" Label="Source2" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>Schedule</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Location</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>Random</Name>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="Mean" DisplayName="MeanDistance" Category="Reward" />
+              <Property Name="StdDev" DisplayName="StdDevDistance" Category="Reward" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q2:CreateNormal">
+                <q2:Mean>3</q2:Mean>
+                <q2:StdDev>1</q2:StdDev>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="Count" Category="Reward" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q2:SampleMany">
+                <q2:Count>20</q2:Count>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="rx:Accumulate" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:ToArray" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:CombineLatest" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:CheckpointReached" />
+            </Expression>
+            <Expression xsi:type="CreateObservable">
+              <Name>Checkpoint</Name>
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="WorkflowInput">
+                    <Name>Source1</Name>
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>Lick</Name>
+                  </Expression>
+                  <Expression xsi:type="Condition">
+                    <Name>Onset</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="1" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:First" />
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>RewardDistribution</Name>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="q2:Sample" />
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Zip" />
+                  </Expression>
+                  <Expression xsi:type="Condition">
+                    <Name>GiveReward</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="MemberSelector">
+                          <Selector>Item2</Selector>
+                        </Expression>
+                        <Expression xsi:type="GreaterThan">
+                          <Operand xsi:type="IntProperty">
+                            <Value>0</Value>
+                          </Operand>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="1" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source1" />
+                        <Edge From="2" To="3" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="q5:BehaviorCommand">
+                    <q5:Type>SetOutput</q5:Type>
+                    <q5:Mask>Poke1Valve</q5:Mask>
+                  </Expression>
+                  <Expression xsi:type="MulticastSubject">
+                    <Name>Commands</Name>
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="1" To="2" Label="Source1" />
+                  <Edge From="2" To="3" Label="Source1" />
+                  <Edge From="3" To="6" Label="Source1" />
+                  <Edge From="4" To="5" Label="Source1" />
+                  <Edge From="5" To="6" Label="Source2" />
+                  <Edge From="6" To="7" Label="Source1" />
+                  <Edge From="7" To="8" Label="Source1" />
+                  <Edge From="8" To="9" Label="Source1" />
+                  <Edge From="9" To="10" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Switch" />
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="8" Label="Source2" />
+            <Edge From="1" To="3" Label="Source1" />
+            <Edge From="2" To="3" Label="Source2" />
+            <Edge From="3" To="5" Label="Source1" />
+            <Edge From="4" To="5" Label="Source2" />
+            <Edge From="5" To="6" Label="Source1" />
+            <Edge From="6" To="7" Label="Source1" />
+            <Edge From="7" To="8" Label="Source1" />
+            <Edge From="8" To="9" Label="Source1" />
+            <Edge From="9" To="10" Label="Source1" />
+            <Edge From="10" To="11" Label="Source1" />
+            <Edge From="11" To="12" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>Stimulation</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="RandomRate (Hz)" Description="The average rate for triggering stimulation pulses." />
+            </Expression>
+            <Expression xsi:type="Defer">
+              <Name>Timer</Name>
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>Random</Name>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Rate" DisplayName="RandomRate (Hz)" />
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="q2:CreateExponential">
+                      <q2:Rate>0.1</q2:Rate>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="q2:Sample" />
+                  </Expression>
+                  <Expression xsi:type="scr:ExpressionTransform">
+                    <scr:Expression>TimeSpan.FromSeconds(it)</scr:Expression>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="DueTime" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Timer">
+                      <rx:DueTime>PT15.913S</rx:DueTime>
+                      <rx:Period>PT0S</rx:Period>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="2" Label="Source1" />
+                  <Edge From="1" To="2" Label="Source2" />
+                  <Edge From="2" To="3" Label="Source1" />
+                  <Edge From="3" To="4" Label="Source1" />
+                  <Edge From="4" To="5" Label="Source1" />
+                  <Edge From="5" To="6" Label="Source1" />
+                  <Edge From="6" To="7" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="Duration (ms)" />
+              <Property Name="Frequency (Hz)" />
+              <Property Name="PulseWidth (ms)" />
+            </Expression>
+            <Expression xsi:type="SelectMany">
+              <Name>Stimulation</Name>
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Value" DisplayName="Duration (ms)" Description="The total duration of the stimulation pulse train." />
+                  </Expression>
+                  <Expression xsi:type="PropertySource" TypeArguments="dsp:FunctionGenerator,sys:Int32">
+                    <MemberName>BufferLength</MemberName>
+                    <Value>3000</Value>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:First" />
+                  </Expression>
+                  <Expression xsi:type="Multiply">
+                    <Operand xsi:type="IntProperty">
+                      <Value>10</Value>
+                    </Operand>
+                  </Expression>
+                  <Expression xsi:type="AsyncSubject">
+                    <Name>BufferLength</Name>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Value" DisplayName="Frequency (Hz)" Description="The frequency of the stimulation pulse sequence." />
+                  </Expression>
+                  <Expression xsi:type="PropertySource" TypeArguments="dsp:FunctionGenerator,sys:Double">
+                    <MemberName>Frequency</MemberName>
+                    <Value>10</Value>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:First" />
+                  </Expression>
+                  <Expression xsi:type="AsyncSubject">
+                    <Name>Frequency</Name>
+                  </Expression>
+                  <Expression xsi:type="scr:ExpressionTransform">
+                    <scr:Expression>1000.0 / it</scr:Expression>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Value" DisplayName="PulseWidth (ms)" Description="The duration of each stimulation pulse. Cannot be higher than stimulation period." />
+                  </Expression>
+                  <Expression xsi:type="PropertySource" TypeArguments="rx:Take,sys:Int32">
+                    <MemberName>Count</MemberName>
+                    <Value>50</Value>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:First" />
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Zip" />
+                  </Expression>
+                  <Expression xsi:type="Divide" />
+                  <Expression xsi:type="Disable">
+                    <Builder xsi:type="scr:ExpressionTransform">
+                      <scr:Expression>1 - it</scr:Expression>
+                    </Builder>
+                  </Expression>
+                  <Expression xsi:type="AsyncSubject">
+                    <Name>PulseWidth</Name>
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>BufferLength</Name>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="BufferLength" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>BufferLength</Name>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="BufferSize" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>Frequency</Name>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="Frequency" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="dsp:FunctionGenerator">
+                      <dsp:BufferLength>30000</dsp:BufferLength>
+                      <dsp:Frequency>10</dsp:Frequency>
+                      <dsp:Waveform>Sawtooth</dsp:Waveform>
+                      <dsp:SampleRate>10000</dsp:SampleRate>
+                      <dsp:Depth>F32</dsp:Depth>
+                      <dsp:Amplitude>0.5</dsp:Amplitude>
+                      <dsp:Offset>0.5</dsp:Offset>
+                      <dsp:Phase>3.1</dsp:Phase>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>PulseWidth</Name>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="ThresholdValue" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="dsp:Threshold">
+                      <dsp:ThresholdValue>0.5</dsp:ThresholdValue>
+                      <dsp:MaxValue>4</dsp:MaxValue>
+                      <dsp:ThresholdType>BinaryInv</dsp:ThresholdType>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Take">
+                      <rx:Count>1</rx:Count>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="mx:AnalogOutput">
+                      <mx:SignalSource />
+                      <mx:SampleRate>10000</mx:SampleRate>
+                      <mx:ActiveEdge>Rising</mx:ActiveEdge>
+                      <mx:SampleMode>FiniteSamples</mx:SampleMode>
+                      <mx:BufferSize>30000</mx:BufferSize>
+                      <mx:Channels>
+                        <mx:AnalogOutputChannelConfiguration>
+                          <mx:ChannelName />
+                          <mx:MinimumValue>-10</mx:MinimumValue>
+                          <mx:MaximumValue>10</mx:MaximumValue>
+                          <mx:PhysicalChannel>Dev1/ao0</mx:PhysicalChannel>
+                          <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                        </mx:AnalogOutputChannelConfiguration>
+                      </mx:Channels>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="1" Label="Source1" />
+                  <Edge From="1" To="2" Label="Source1" />
+                  <Edge From="2" To="3" Label="Source1" />
+                  <Edge From="3" To="4" Label="Source1" />
+                  <Edge From="5" To="6" Label="Source1" />
+                  <Edge From="6" To="7" Label="Source1" />
+                  <Edge From="7" To="8" Label="Source1" />
+                  <Edge From="8" To="9" Label="Source1" />
+                  <Edge From="9" To="13" Label="Source2" />
+                  <Edge From="10" To="11" Label="Source1" />
+                  <Edge From="11" To="12" Label="Source1" />
+                  <Edge From="12" To="13" Label="Source1" />
+                  <Edge From="13" To="14" Label="Source1" />
+                  <Edge From="14" To="15" Label="Source1" />
+                  <Edge From="15" To="16" Label="Source1" />
+                  <Edge From="17" To="18" Label="Source1" />
+                  <Edge From="18" To="23" Label="Source2" />
+                  <Edge From="19" To="20" Label="Source1" />
+                  <Edge From="20" To="28" Label="Source2" />
+                  <Edge From="21" To="22" Label="Source1" />
+                  <Edge From="22" To="23" Label="Source1" />
+                  <Edge From="23" To="26" Label="Source1" />
+                  <Edge From="24" To="25" Label="Source1" />
+                  <Edge From="25" To="26" Label="Source2" />
+                  <Edge From="26" To="27" Label="Source1" />
+                  <Edge From="27" To="28" Label="Source1" />
+                  <Edge From="28" To="29" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Last" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Repeat" />
+            </Expression>
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="3" Label="Source1" />
+            <Edge From="2" To="3" Label="Source2" />
+            <Edge From="3" To="4" Label="Source1" />
+            <Edge From="4" To="5" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q6:FlyCapture">
+          <q6:Index>0</q6:Index>
+          <q6:ColorProcessing>Default</q6:ColorProcessing>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>Data\eye.csv</io:FileName>
+        <io:Append>false</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>Timestamp</io:Suffix>
+        <io:IncludeHeader>false</io:IncludeHeader>
+        <io:Selector>Metadata.embeddedFrameCounter,Metadata.embeddedTimeStamp</io:Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Image</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:VideoWriter">
+          <cv:FileName>Data\eye.avi</cv:FileName>
+          <cv:Suffix>Timestamp</cv:Suffix>
+          <cv:Buffered>true</cv:Buffered>
+          <cv:Overwrite>false</cv:Overwrite>
+          <cv:FourCC>FMP4</cv:FourCC>
+          <cv:FrameRate>50</cv:FrameRate>
+          <cv:FrameSize>
+            <cv:Width>0</cv:Width>
+            <cv:Height>0</cv:Height>
+          </cv:FrameSize>
+          <cv:ResizeInterpolation>NearestNeighbor</cv:ResizeInterpolation>
+        </Combinator>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
+      <Edge From="4" To="5" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
+      <Edge From="6" To="7" Label="Source1" />
+      <Edge From="13" To="14" Label="Source1" />
+      <Edge From="14" To="15" Label="Source1" />
+      <Edge From="15" To="16" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>

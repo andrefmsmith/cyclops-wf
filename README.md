@@ -10,3 +10,8 @@ The rig was built from scratch from specifications identical to the setups creat
 The main difference for this setup is it is fully run & controlled by [Bonsai software](https://bonsai-rx.org/). Bonsai is a visual programming language designed to control data acquisition & instrument actuation in a fast & responsive way. In this setup, Bonsai controls camera frame acquisition, UV/Blue illumination, keeps track of dropped frames & implements a full 'state machine' via Nidaq boards where the status of running behaviour, eye and body cameras, optogenetic stimulation status & wavelength currently being exposed is fully tracked.
 
 In this repository we share the Bonsai workflows used for for running the setup and Python code used to parse & analyse data it generates.
+
+## Hardware components
+Harp: https://www.cf-hw.org/harp
+Behavior board: https://www.cf-hw.org/harp/behavior
+Drivers: https://bitbucket.org/fchampalimaud/downloads/downloads/

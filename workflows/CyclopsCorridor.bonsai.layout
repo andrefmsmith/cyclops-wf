@@ -128,7 +128,7 @@
         <Y>3</Y>
       </Location>
       <Size>
-        <Width>1202</Width>
+        <Width>1212</Width>
         <Height>1008</Height>
       </Size>
       <WindowState>Normal</WindowState>
@@ -149,8 +149,8 @@
       <DialogSettings>
         <Visible>true</Visible>
         <Location>
-          <X>299</X>
-          <Y>716</Y>
+          <X>161</X>
+          <Y>817</Y>
         </Location>
         <Size>
           <Width>590</Width>
@@ -163,7 +163,7 @@
             <XMin>0</XMin>
             <XMax>10000</XMax>
             <YMin>-0.1</YMin>
-            <YMax>5</YMax>
+            <YMax>5.1</YMax>
             <AutoScaleX>true</AutoScaleX>
             <AutoScaleY>false</AutoScaleY>
             <SelectedPage>0</SelectedPage>
@@ -172,9 +172,6 @@
             <ChannelOffset>0</ChannelOffset>
             <HistoryLength>1000</HistoryLength>
             <WaveformBufferLength>1</WaveformBufferLength>
-            <SelectedChannels>
-              <int>2</int>
-            </SelectedChannels>
           </MatVisualizer>
         </VisualizerSettings>
       </DialogSettings>
@@ -488,38 +485,38 @@
       <DialogSettings>
         <Visible>false</Visible>
         <Location>
-          <X>300</X>
-          <Y>300</Y>
+          <X>0</X>
+          <Y>0</Y>
         </Location>
         <Size>
-          <Width>416</Width>
-          <Height>278</Height>
+          <Width>0</Width>
+          <Height>0</Height>
         </Size>
         <WindowState>Normal</WindowState>
-        <VisualizerTypeName>Bonsai.Design.Visualizers.BooleanTimeSeriesVisualizer</VisualizerTypeName>
-        <VisualizerSettings>
-          <BooleanTimeSeriesVisualizer>
-            <Capacity>640</Capacity>
-          </BooleanTimeSeriesVisualizer>
-        </VisualizerSettings>
       </DialogSettings>
       <DialogSettings>
         <Visible>false</Visible>
         <Location>
-          <X>150</X>
-          <Y>150</Y>
+          <X>0</X>
+          <Y>0</Y>
         </Location>
         <Size>
-          <Width>416</Width>
-          <Height>278</Height>
+          <Width>0</Width>
+          <Height>0</Height>
         </Size>
         <WindowState>Normal</WindowState>
-        <VisualizerTypeName>Bonsai.Design.Visualizers.BooleanTimeSeriesVisualizer</VisualizerTypeName>
-        <VisualizerSettings>
-          <BooleanTimeSeriesVisualizer>
-            <Capacity>640</Capacity>
-          </BooleanTimeSeriesVisualizer>
-        </VisualizerSettings>
+      </DialogSettings>
+      <DialogSettings>
+        <Visible>false</Visible>
+        <Location>
+          <X>0</X>
+          <Y>0</Y>
+        </Location>
+        <Size>
+          <Width>0</Width>
+          <Height>0</Height>
+        </Size>
+        <WindowState>Normal</WindowState>
       </DialogSettings>
       <DialogSettings>
         <Visible>false</Visible>
@@ -589,7 +586,7 @@
         <Y>3</Y>
       </Location>
       <Size>
-        <Width>1202</Width>
+        <Width>1212</Width>
         <Height>1008</Height>
       </Size>
       <WindowState>Normal</WindowState>
@@ -1029,7 +1026,7 @@
         <Y>3</Y>
       </Location>
       <Size>
-        <Width>1202</Width>
+        <Width>1212</Width>
         <Height>1008</Height>
       </Size>
       <WindowState>Normal</WindowState>
@@ -1038,8 +1035,8 @@
       <DialogSettings>
         <Visible>true</Visible>
         <Location>
-          <X>443</X>
-          <Y>1107</Y>
+          <X>176</X>
+          <Y>1205</Y>
         </Location>
         <Size>
           <Width>416</Width>
@@ -1050,8 +1047,8 @@
         <VisualizerSettings>
           <TimeSeriesVisualizer>
             <Capacity>640</Capacity>
-            <Min>22</Min>
-            <Max>25</Max>
+            <Min>-1</Min>
+            <Max>1</Max>
             <AutoScale>true</AutoScale>
           </TimeSeriesVisualizer>
         </VisualizerSettings>
@@ -1155,8 +1152,8 @@
       <DialogSettings>
         <Visible>true</Visible>
         <Location>
-          <X>871</X>
-          <Y>1102</Y>
+          <X>612</X>
+          <Y>1203</Y>
         </Location>
         <Size>
           <Width>416</Width>
@@ -1168,7 +1165,7 @@
           <TimeSeriesVisualizer>
             <Capacity>640</Capacity>
             <Min>0</Min>
-            <Max>25</Max>
+            <Max>1.1</Max>
             <AutoScale>true</AutoScale>
           </TimeSeriesVisualizer>
         </VisualizerSettings>
@@ -1233,7 +1230,7 @@
         <Y>3</Y>
       </Location>
       <Size>
-        <Width>1202</Width>
+        <Width>1212</Width>
         <Height>1008</Height>
       </Size>
       <WindowState>Normal</WindowState>

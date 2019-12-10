@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <WorkflowBuilder Version="2.4.0"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
@@ -387,6 +387,22 @@
                     <mx:TerminalConfiguration>Differential</mx:TerminalConfiguration>
                     <mx:VoltageUnits>Volts</mx:VoltageUnits>
                   </mx:AnalogInputChannelConfiguration>
+                  <mx:AnalogInputChannelConfiguration>
+                    <mx:ChannelName>Valve</mx:ChannelName>
+                    <mx:MinimumValue>-10</mx:MinimumValue>
+                    <mx:MaximumValue>10</mx:MaximumValue>
+                    <mx:PhysicalChannel>Dev1/ai8</mx:PhysicalChannel>
+                    <mx:TerminalConfiguration>Rse</mx:TerminalConfiguration>
+                    <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                  </mx:AnalogInputChannelConfiguration>
+                  <mx:AnalogInputChannelConfiguration>
+                    <mx:ChannelName>Lick</mx:ChannelName>
+                    <mx:MinimumValue>-10</mx:MinimumValue>
+                    <mx:MaximumValue>10</mx:MaximumValue>
+                    <mx:PhysicalChannel>Dev1/ai9</mx:PhysicalChannel>
+                    <mx:TerminalConfiguration>Rse</mx:TerminalConfiguration>
+                    <mx:VoltageUnits>Volts</mx:VoltageUnits>
+                  </mx:AnalogInputChannelConfiguration>
                 </mx:Channels>
               </Combinator>
             </Expression>
@@ -541,6 +557,28 @@
         <Name>Harp</Name>
         <Workflow>
           <Nodes>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q4:CreateHarpMessage">
+                <q4:MessageType>Write</q4:MessageType>
+                <q4:Address>112</q4:Address>
+                <q4:PayloadType>U8</q4:PayloadType>
+                <q4:Payload>4</q4:Payload>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q4:CreateHarpMessage">
+                <q4:MessageType>Write</q4:MessageType>
+                <q4:Address>118</q4:Address>
+                <q4:PayloadType>U8</q4:PayloadType>
+                <q4:Payload>6</q4:Payload>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Merge" />
+            </Expression>
+            <Expression xsi:type="BehaviorSubject">
+              <Name>Commands</Name>
+            </Expression>
             <Expression xsi:type="SubscribeSubject">
               <Name>Commands</Name>
             </Expression>
@@ -566,29 +604,16 @@
               <Name>Lick</Name>
             </Expression>
             <Expression xsi:type="WorkflowOutput" />
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="q4:CreateHarpMessage">
-                <q4:MessageType>Write</q4:MessageType>
-                <q4:Address>32</q4:Address>
-                <q4:PayloadType>U8</q4:PayloadType>
-                <q4:Payload>0</q4:Payload>
-              </Combinator>
-            </Expression>
-            <Expression xsi:type="Combinator">
-              <Combinator xsi:type="rx:IgnoreElements" />
-            </Expression>
-            <Expression xsi:type="BehaviorSubject">
-              <Name>Commands</Name>
-            </Expression>
           </Nodes>
           <Edges>
             <Edge From="0" To="2" Label="Source1" />
             <Edge From="1" To="2" Label="Source2" />
             <Edge From="2" To="3" Label="Source1" />
-            <Edge From="3" To="4" Label="Source1" />
-            <Edge From="4" To="5" Label="Source1" />
+            <Edge From="4" To="6" Label="Source1" />
+            <Edge From="5" To="6" Label="Source2" />
             <Edge From="6" To="7" Label="Source1" />
             <Edge From="7" To="8" Label="Source1" />
+            <Edge From="8" To="9" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
@@ -626,8 +651,8 @@
               </PropertyMappings>
             </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.OrthographicViewport.bonsai">
-              <Left>0.628</Left>
-              <Right>1.628</Right>
+              <Left>0</Left>
+              <Right>1</Right>
               <Bottom>0</Bottom>
               <Top>1</Top>
             </Expression>
@@ -653,9 +678,9 @@
               <ExtentY>0.4</ExtentY>
               <LocationX>1.5</LocationX>
               <LocationY>-0.9</LocationY>
-              <ColorR>0.628</ColorR>
-              <ColorG>0.628</ColorG>
-              <ColorB>0.628</ColorB>
+              <ColorR>0</ColorR>
+              <ColorG>0</ColorG>
+              <ColorB>0</ColorB>
               <ColorA>1</ColorA>
             </Expression>
             <Expression xsi:type="SubscribeSubject">

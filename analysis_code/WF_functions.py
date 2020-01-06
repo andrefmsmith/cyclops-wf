@@ -83,25 +83,14 @@ samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq)
 #color_seq=illum_seq(samples_blu, samples_uv)
 tiffs_frames_color = get_tif_fr_ilu(frames_csv, color_seq)
 #%%
-blue_frames = np.zeros((500,800,len(samples_blu)), dtype='int16')
-#%%
-preffix = '/widefield'
-suffix = '.tif'
-files_loaded = []
-for i, frame, in enumerate(tiffs_frames_color[:,1]):
-    if tiffs_frames_color[frame-1,2] ==6:
-        filename = tiffdir + preffix + str(tiffs_frames_color[i,0]) + suffix
-        blue_frames[:,:,int(frame/2)] = tifffile.imread( filename )
-        files_loaded.append(filename)
-        
-    #all_frames[:,:,int(fr_i[0])-1] = tifffile.imread(tiffdir + preffix + str(fl_i+1) + suffix)
-    #timeit.timeit
-    #print(i, frame, int(frame/2))
+blue_frames = np.zeros((500,800,len(samples_blu)), dtype=np.float32)
+
 #%%
 preffix = '/widefield'
 suffix = '.tif'
 files_loaded = []
 
+start = time.time()
 for pair in zip(tiffs_frames_color[:,0:2]):
     tiff = pair[0][0]
     frame = pair[0][1]
@@ -110,5 +99,34 @@ for pair in zip(tiffs_frames_color[:,0:2]):
         filename = tiffdir + preffix + str(tiff) + suffix
         blue_frames[:,:,int(frame/2)] = tifffile.imread( filename )
         files_loaded.append(filename)
+elapsed_time_fl = (time.time()-start)
+print(elapsed_time_fl/60)
 #%%
-plt.imshow(blue_frames[:,:,13225], cmap='Greys_r')
+plt.imshow(blue_frames[:,:,22000], cmap='Greys_r')
+#%%
+blue_frames-=np.average(blue_frames, axis = -1)
+#%%
+def downsample2d(inputArray, kernelSize):
+    import scipy.signal as sig
+    average_kernel = np.ones((kernelSize, kernelSize))
+    
+    blurred_array = sig.convolve2d(inputArray, average_kernel, mode='same')
+    downsampled_array = blurred_array[::kernelSize,::kernelSize]
+    return downsampled_array
+#%%
+ds_blue_frames = np.empty((250,400,blue_frames.shape[2]), dtype=np.float32)
+
+start = time.time()
+for t in range(blue_frames.shape[2]):
+    ds_blue_frames[:,:,t] = downsample2d(blue_frames[:,:,t], 2)
+elapsed_time_fl = (time.time()-start)
+print(elapsed_time_fl/60)
+#%%
+ds_blue_frames -= np.mean(ds_blue_frames, axis = 0)
+#%%
+ds_blue_frames /= np.std(ds_blue_frames, axis = 0)
+#%%
+plt.imshow(ds_blue_frames[:,:,10000], cmap='seismic', vmin = -10, vmax = 10)
+#%%
+import imageio
+imageio.mimwrite('test_vid1.mp4', ds_blue_frames[:,:,0:1000], fps=[20])

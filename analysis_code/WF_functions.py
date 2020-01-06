@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import os
 import csv
 import tifffile
+import imageio
+import skimage.measure
 
 os.chdir('E:/WF/11.12.2019')
 #%%
@@ -20,7 +22,7 @@ def load_nidaq(path, chans=10):
     chan_labels = {0: 'EncoderA', 1: 'EncoderB', 2: 'Photodiode', 3: 'OptoStim', 4: 'Tglobal', 5: 'UVframe', 6: 'BLUframe', 7: 'AcqImg', 8: 'RewValve', 9: 'Lick'}
     
     return nidaq, chan_labels
-#%%
+
 def illum_seq(nidaq, u=5, b=6):
     '''1. Obtains UV and Blue illumination onsets from nidaq.
     2. Calculates total_frames and total_tiffs captured.
@@ -64,7 +66,6 @@ def illum_seq(nidaq, u=5, b=6):
             
     return samples_uv, samples_blu, total_frames, total_tiffs, color_seq
 
-#%%
 def get_tif_fr_ilu(path, illum_seq):
     '''Loads the csv file that recorded frame# and tiff# for image acquired, then creates an array of tiff #, frame # and illumination color.'''
     path = frames_csv
@@ -83,9 +84,9 @@ samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq)
 #color_seq=illum_seq(samples_blu, samples_uv)
 tiffs_frames_color = get_tif_fr_ilu(frames_csv, color_seq)
 #%%
-blue_frames = np.zeros((500,800,len(samples_blu)), dtype=np.float32)
+blue_frames = np.zeros((len(samples_blu),500,800), dtype=np.uint16)
 
-#%%
+#%%Load frames into reconstructed full array
 preffix = '/widefield'
 suffix = '.tif'
 files_loaded = []
@@ -97,15 +98,11 @@ for pair in zip(tiffs_frames_color[:,0:2]):
     
     if color_seq[frame-1] == 6:
         filename = tiffdir + preffix + str(tiff) + suffix
-        blue_frames[:,:,int(frame/2)] = tifffile.imread( filename )
+        blue_frames[int(frame/2),:,:] = tifffile.imread( filename )
         files_loaded.append(filename)
 elapsed_time_fl = (time.time()-start)
 print(elapsed_time_fl/60)
-#%%
-plt.imshow(blue_frames[:,:,22000], cmap='Greys_r')
-#%%
-blue_frames-=np.average(blue_frames, axis = -1)
-#%%
+#%%downsample manual
 def downsample2d(inputArray, kernelSize):
     import scipy.signal as sig
     average_kernel = np.ones((kernelSize, kernelSize))
@@ -113,20 +110,41 @@ def downsample2d(inputArray, kernelSize):
     blurred_array = sig.convolve2d(inputArray, average_kernel, mode='same')
     downsampled_array = blurred_array[::kernelSize,::kernelSize]
     return downsampled_array
-#%%
-ds_blue_frames = np.empty((250,400,blue_frames.shape[2]), dtype=np.float32)
+#%%skimage method
+ds_blue_frames = np.empty((blue_frames.shape[0], 250,400), dtype=np.uint16)
 
 start = time.time()
-for t in range(blue_frames.shape[2]):
-    ds_blue_frames[:,:,t] = downsample2d(blue_frames[:,:,t], 2)
+for t in range(blue_frames.shape[0]):
+    ds_blue_frames[t,:,:] = skimage.measure.block_reduce(blue_frames[t,:,:], (2,2), np.mean)
 elapsed_time_fl = (time.time()-start)
 print(elapsed_time_fl/60)
+
+blue_frames = None
 #%%
-ds_blue_frames -= np.mean(ds_blue_frames, axis = 0)
+start = time.time()
+for t in range(blue_frames.shape[0]):
+    ds_blue_frames[t,:,:] = downsample2d(blue_frames[t,:,:], 2)
+elapsed_time_fl = (time.time()-start)
+print(elapsed_time_fl/60)
+
+blue_frames = None
+np.save('widefield2019-12-11T13_52_23_WFSC01', ds_blue_frames)
 #%%
-ds_blue_frames /= np.std(ds_blue_frames, axis = 0)
+zs_blue_frames = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0)) / np.std(ds_blue_frames, axis = 0)
+
 #%%
-plt.imshow(ds_blue_frames[:,:,10000], cmap='seismic', vmin = -10, vmax = 10)
+import matplotlib.animation as animation
+
+fig = plt.figure()
+
+ims = []
+for i in range(1000):
+    im = plt.imshow(zs_blue_frames[i,:,:], animated=True, cmap = 'seismic', vmin = -10, vmax = 10)
+    ims.append([im])
+    
+ani = animation.ArtistAnimation(fig, ims, interval=40, blit=True, repeat_delay=1000)
+ani.save('test_mtpl.mp4')
+
+plt.show()
 #%%
-import imageio
-imageio.mimwrite('test_vid1.mp4', ds_blue_frames[:,:,0:1000], fps=[20])
+a = skimage.measure.block_reduce(zs_blue_frames[0,:,:], (2,2), np.mean)

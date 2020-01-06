@@ -102,15 +102,7 @@ for pair in zip(tiffs_frames_color[:,0:2]):
         files_loaded.append(filename)
 elapsed_time_fl = (time.time()-start)
 print(elapsed_time_fl/60)
-#%%downsample manual
-def downsample2d(inputArray, kernelSize):
-    import scipy.signal as sig
-    average_kernel = np.ones((kernelSize, kernelSize))
-    
-    blurred_array = sig.convolve2d(inputArray, average_kernel, mode='same')
-    downsampled_array = blurred_array[::kernelSize,::kernelSize]
-    return downsampled_array
-#%%skimage method
+#%%average 2x2 pixels
 ds_blue_frames = np.empty((blue_frames.shape[0], 250,400), dtype=np.uint16)
 
 start = time.time()
@@ -121,15 +113,8 @@ print(elapsed_time_fl/60)
 
 blue_frames = None
 #%%
-start = time.time()
-for t in range(blue_frames.shape[0]):
-    ds_blue_frames[t,:,:] = downsample2d(blue_frames[t,:,:], 2)
-elapsed_time_fl = (time.time()-start)
-print(elapsed_time_fl/60)
-
-blue_frames = None
 np.save('widefield2019-12-11T13_52_23_WFSC01', ds_blue_frames)
-#%%
+#%%z-score
 zs_blue_frames = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0)) / np.std(ds_blue_frames, axis = 0)
 
 #%%
@@ -139,7 +124,7 @@ fig = plt.figure()
 
 ims = []
 for i in range(1000):
-    im = plt.imshow(zs_blue_frames[i,:,:], animated=True, cmap = 'seismic', vmin = -10, vmax = 10)
+    im = plt.imshow(zs_blue_frames[i,:,:], animated=True, cmap = 'seismic', vmin = -6, vmax = 6)
     ims.append([im])
     
 ani = animation.ArtistAnimation(fig, ims, interval=40, blit=True, repeat_delay=1000)

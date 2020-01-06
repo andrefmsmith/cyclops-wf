@@ -87,12 +87,28 @@ blue_frames = np.zeros((500,800,len(samples_blu)), dtype='int16')
 #%%
 preffix = '/widefield'
 suffix = '.tif'
-for i, frame, in enumerate(tiffs_frames_color[0:100,1]):
-    if tiffs_frames_color[i,2] ==6:
-        blue_frames[:,:,int(frame/2)] = tifffile.imread( tiffdir + preffix + tiffs_frames_color[i,0])
+files_loaded = []
+for i, frame, in enumerate(tiffs_frames_color[:,1]):
+    if tiffs_frames_color[frame-1,2] ==6:
+        filename = tiffdir + preffix + str(tiffs_frames_color[i,0]) + suffix
+        blue_frames[:,:,int(frame/2)] = tifffile.imread( filename )
+        files_loaded.append(filename)
+        
     #all_frames[:,:,int(fr_i[0])-1] = tifffile.imread(tiffdir + preffix + str(fl_i+1) + suffix)
     #timeit.timeit
     #print(i, frame, int(frame/2))
 #%%
-for tiff_i, frame_i in zip(files_frames, files_frames):
-    all_frames[:,:, frame_i-1] = tifffile.imread(tiffdir + preffix + str(tiff_i) + suffix)
+preffix = '/widefield'
+suffix = '.tif'
+files_loaded = []
+
+for pair in zip(tiffs_frames_color[:,0:2]):
+    tiff = pair[0][0]
+    frame = pair[0][1]
+    
+    if color_seq[frame-1] == 6:
+        filename = tiffdir + preffix + str(tiff) + suffix
+        blue_frames[:,:,int(frame/2)] = tifffile.imread( filename )
+        files_loaded.append(filename)
+#%%
+plt.imshow(blue_frames[:,:,13225], cmap='Greys_r')

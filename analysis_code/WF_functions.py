@@ -18,7 +18,7 @@ def load_nidaq(path, chans=10):
     
     return nidaq, chan_labels
 
-def illum_seq(nidaq, u=5, b=6):
+def illum_seq(nidaq, tiff_folder, u=5, b=6):
     '''1. Obtains UV and Blue illumination onsets from nidaq.
     2. Calculates total_frames and total_tiffs captured.
     3. Establishes the illumination sequence sent during the experiment.
@@ -29,7 +29,7 @@ def illum_seq(nidaq, u=5, b=6):
     samples_uv = np.nonzero(uv)[0]
     samples_blu = np.nonzero(blu)[0]
     total_frames = len(samples_uv) + len(samples_blu)
-    total_tiffs = len(os.listdir(tiffdir))
+    total_tiffs = len(os.listdir(tiff_folder))
     
     color_seq = []
     i = 0

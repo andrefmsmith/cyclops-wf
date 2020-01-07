@@ -21,7 +21,7 @@ frames_csv = 'widefield2019-12-11T13_52_23_WFSC01.csv'
 #%%
 nidaq, chan_labels = load_nidaq(nidaqfile)
 
-samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq)
+samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq, tiffdir)
 
 tiffs_frames_color = get_tif_fr_ilu(frames_csv, color_seq)
 #%%
@@ -36,20 +36,57 @@ zs_blue_frames = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0)) / np.std(d
     
 animate_frameseq(zs_blue_frames[0:1000,:,:], zmin = -3, zmax = 3, filename='full_test')
 #%%Obtain opto trial starts and ends
-samples_opto = np.nonzero(np.diff(np.int32(nidaq[3,:]>1.5)) > 0)[0]
-trial_start = samples_opto[1:][np.diff(samples_opto)>1000]
-opto_trials = np.empty((len(trial_start),2), dtype='int64')
-opto_trials[:,0] = trial_start
-opto_trials[:,1] = trial_start + 9500
+def extract_opto_frames(nidaq_opto, wf_samples, length_opto = 10000, length_frame = 62):
+    samples_opto = np.nonzero(np.diff(np.int32(nidaq_opto>1.5)) > 0)[0]
+    trial_start = samples_opto[1:][np.diff(samples_opto)>1000]
+    opto_trials = np.empty((len(trial_start),2), dtype='int64')
+    opto_trials[:,0] = trial_start
+    opto_trials[:,1] = trial_start + length_opto
+    
+    opto_blue = []
+    for trial in range(len(opto_trials)):    
+        opto_blue.append(wf_samples[np.where(np.logical_and(wf_samples>=opto_trials[trial,0], wf_samples<=opto_trials[trial,1]))])
+    
+    opto_blue_clean = []
+    opto_blue_opto = []
+    
+    for trial in range(len(opto_blue)):
+        for frame in opto_blue[trial]:
+            if (nidaq_opto[frame:frame+length_frame] < 1.5).all():
+                opto_blue_clean.append(frame)
+            else:
+                opto_blue_opto.append(frame)
+                
+    frames_clean = [np.where(samples_blu == i)[0][0] for i in opto_blue_clean]
+    frames_opto = [np.where(samples_blu == i)[0][0] for i in opto_blue_opto ]
+    
+    return frames_clean, frames_opto
 #%%
-opto_blue = []
+frames_cleanb, frames_optob = extract_opto_frames(nidaq[3,:], samples_blu)
+s
+#%%check accuracy of opto frame finder
+avg_clean = np.mean(zs_blue_frames[frames_cleanb,:,:], axis = 0)
+avg_opto = np.mean(zs_blue_frames[frames_optob,:,:], axis = 0)
 
-for trial in range(len(opto_trials)):    
-    opto_blue.append(samples_blu[np.where(np.logical_and(samples_blu>=opto_trials[trial,0], samples_blu<=opto_trials[trial,1]))])
+
 #%%
+opto_frame_start = np.array(frames_clean[1:]) [np.diff(frames_clean)>20]
+#%%
+frame_starts = np.array(frames_clean)[np.diff([0]+frames_clean)>50]
+#%%
+episodes = np.empty((len(frame_starts), 31), dtype='int64')
 
-#%%check accuracy of opto trial extraction
-plt.scatter(opto_trials[:,0], 1.01*np.ones(len(opto_trials[:,0])), c = 'g')
-plt.scatter(opto_trials[:,1], 1.01*np.ones(len(opto_trials[:,0])), c = 'r')
-plt.scatter(opto_on, np.ones((len(opto_on)) ), c = 'orange', alpha = 0.2)
-plt.plot(nidaq[3,:]/4, alpha = 0.4)
+for i in range(len(frame_starts)):
+    episodes[i,0:15] = np.arange(frame_starts[i]-15, frame_starts[i])
+    a = np.where(frames_clean==frame_starts[i])[0][0]
+    episodes[i,15:24] = frames_clean[a:a+9]
+    t = 24
+    while t<31:
+        episodes[i,t] = episodes[i, t-1] + 1
+        t+=1
+#%%
+a = np.empty((31,125,200,76),dtype=np.float32)
+for i in range(76):
+    a[:,:,:,i] = zs_blue_frames[episodes[i],:,:]
+#%%
+animate_frameseq(b, zmin=-1, zmax=1, filename='test', fps = 4, colormap = 'seismic', savefile=True)

@@ -35,3 +35,21 @@ blue_frames = None
 zs_blue_frames = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0)) / np.std(ds_blue_frames, axis = 0)
     
 animate_frameseq(zs_blue_frames[0:1000,:,:], zmin = -3, zmax = 3, filename='full_test')
+#%%Obtain opto trial starts and ends
+samples_opto = np.nonzero(np.diff(np.int32(nidaq[3,:]>1.5)) > 0)[0]
+trial_start = samples_opto[1:][np.diff(samples_opto)>1000]
+opto_trials = np.empty((len(trial_start),2), dtype='int64')
+opto_trials[:,0] = trial_start
+opto_trials[:,1] = trial_start + 9500
+#%%
+opto_blue = []
+
+for trial in range(len(opto_trials)):    
+    opto_blue.append(samples_blu[np.where(np.logical_and(samples_blu>=opto_trials[trial,0], samples_blu<=opto_trials[trial,1]))])
+#%%
+
+#%%check accuracy of opto trial extraction
+plt.scatter(opto_trials[:,0], 1.01*np.ones(len(opto_trials[:,0])), c = 'g')
+plt.scatter(opto_trials[:,1], 1.01*np.ones(len(opto_trials[:,0])), c = 'r')
+plt.scatter(opto_on, np.ones((len(opto_on)) ), c = 'orange', alpha = 0.2)
+plt.plot(nidaq[3,:]/4, alpha = 0.4)

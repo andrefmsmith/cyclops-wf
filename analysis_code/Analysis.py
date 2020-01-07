@@ -36,7 +36,7 @@ zs_blue_frames = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0)) / np.std(d
     
 animate_frameseq(zs_blue_frames[0:1000,:,:], zmin = -3, zmax = 3, filename='full_test')
 #%%Obtain opto trial starts and ends
-def extract_opto_frames(nidaq_opto, wf_samples, length_opto = 10000, length_frame = 62):
+def extract_opto_frames(nidaq_opto, wf_samples, length_opto = 10000, length_frame = 62, buffer=400):
     samples_opto = np.nonzero(np.diff(np.int32(nidaq_opto>1.5)) > 0)[0]
     trial_start = samples_opto[1:][np.diff(samples_opto)>1000]
     opto_trials = np.empty((len(trial_start),2), dtype='int64')
@@ -52,7 +52,7 @@ def extract_opto_frames(nidaq_opto, wf_samples, length_opto = 10000, length_fram
     
     for trial in range(len(opto_blue)):
         for frame in opto_blue[trial]:
-            if (nidaq_opto[frame:frame+length_frame] < 1.5).all():
+            if (nidaq_opto[frame-buffer:frame+length_frame] < 1.5).all():
                 opto_blue_clean.append(frame)
             else:
                 opto_blue_opto.append(frame)
@@ -63,16 +63,32 @@ def extract_opto_frames(nidaq_opto, wf_samples, length_opto = 10000, length_fram
     return frames_clean, frames_opto
 #%%
 frames_cleanb, frames_optob = extract_opto_frames(nidaq[3,:], samples_blu)
-s
+
 #%%check accuracy of opto frame finder
 avg_clean = np.mean(zs_blue_frames[frames_cleanb,:,:], axis = 0)
 avg_opto = np.mean(zs_blue_frames[frames_optob,:,:], axis = 0)
-
-
+plt.imshow(avg_clean, vmin=-3, vmax=3)
+plt.figure()
+plt.imshow(avg_opto, vmin=-3, vmax=3)
+plt.figure()
+plt.imshow(avg_clean - avg_opto, vmin=-3, vmax=3)
 #%%
-opto_frame_start = np.array(frames_clean[1:]) [np.diff(frames_clean)>20]
+
+frame_starts = np.array(frames_cleanb)[np.diff([0]+frames_cleanb)>50]
 #%%
-frame_starts = np.array(frames_clean)[np.diff([0]+frames_clean)>50]
+frame_by_frame = np.empty((len(frame_starts), 9, 125, 200))
+
+for frame in frames_cleanb:
+    if frame in frame_starts:
+        trial = np.argwhere(frame_starts==frame)[0][0]
+        frame_by_frame[trial, 0,:,:] = zs_blue_frames[frame,:,:]
+    else:
+        trial = np.argmin(abs(frame-frame_starts))
+        f = frames_cleanb[ frames_cleanb.index(frame_starts[trial]):].index(frame)
+        if f<9:
+            frame_by_frame[trial, f,:,:] = zs_blue_frames[frame,:,:]
+#%%
+            
 #%%
 episodes = np.empty((len(frame_starts), 31), dtype='int64')
 

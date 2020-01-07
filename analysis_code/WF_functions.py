@@ -6,6 +6,7 @@ import csv
 import tifffile
 import imageio
 import skimage.measure
+from matplotlib import animation
 
 os.chdir('E:/WF/11.12.2019')
 #%%
@@ -78,6 +79,13 @@ def get_tif_fr_ilu(path, illum_seq):
         tiffs_frames_color[int(tiff_i), 1] = frame_i[0]
         tiffs_frames_color[int(tiff_i), 2] = illum_seq[tiffs_frames_color[int(tiff_i)-1, 1]]
     return tiffs_frames_color
+
+def smooth_pool(frame_array, x=500, y=800, k=4):
+    '''Smooths a frame_array according to a box kernel of size k and reduces array size by taking mean of k-delimited box.'''
+    ds_blue_frames = np.empty((frame_array.shape[0], int(x/k),int(y/k)), dtype=np.uint16)
+    for t in range(frame_array.shape[0]):
+        ds_blue_frames[t,:,:] = skimage.measure.block_reduce(frame_array[t,:,:], (k,k), np.mean)
+    return ds_blue_frames
 #%%
 nidaq, chan_labels = load_nidaq(nidaqfile)
 samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq)
@@ -86,7 +94,9 @@ tiffs_frames_color = get_tif_fr_ilu(frames_csv, color_seq)
 #%%
 blue_frames = np.zeros((len(samples_blu),500,800), dtype=np.uint16)
 
-#%%Load frames into reconstructed full array
+#%%Load frames into reconstructed full array - turn into function
+#def load_imaging_frames(tiffs_frames_color, color_seq, tiffdir, preffix = '/widefield', suffix = '.tif')
+
 preffix = '/widefield'
 suffix = '.tif'
 files_loaded = []
@@ -102,34 +112,28 @@ for pair in zip(tiffs_frames_color[:,0:2]):
         files_loaded.append(filename)
 elapsed_time_fl = (time.time()-start)
 print(elapsed_time_fl/60)
-#%%average 2x2 pixels
-ds_blue_frames = np.empty((blue_frames.shape[0], 250,400), dtype=np.uint16)
-
-start = time.time()
-for t in range(blue_frames.shape[0]):
-    ds_blue_frames[t,:,:] = skimage.measure.block_reduce(blue_frames[t,:,:], (2,2), np.mean)
-elapsed_time_fl = (time.time()-start)
-print(elapsed_time_fl/60)
-
-blue_frames = None
 #%%
+ds_blue_frames = smooth_pool(blue_frames)
+blue_frames = None
 np.save('widefield2019-12-11T13_52_23_WFSC01', ds_blue_frames)
-#%%z-score
+#%%z-score - turn into function
 zs_blue_frames = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0)) / np.std(ds_blue_frames, axis = 0)
 
 #%%
-import matplotlib.animation as animation
 
-fig = plt.figure()
-
-ims = []
-for i in range(1000):
-    im = plt.imshow(zs_blue_frames[i,:,:], animated=True, cmap = 'seismic', vmin = -6, vmax = 6)
-    ims.append([im])
+def animate_frameseq(frame_array, zmin, zmax, filename, fps = 25, colormap = 'seismic'):
+    fig = plt.figure()
     
-ani = animation.ArtistAnimation(fig, ims, interval=40, blit=True, repeat_delay=1000)
-ani.save('test_mtpl.mp4')
-
-plt.show()
+    ims = []
+    for i in range(frame_array.shape[0]):
+        im = plt.imshow(frame_array[i,:,:], animated=True, cmap = colormap, vmin = zmin, vmax = zmax)
+        ims.append([im])
+        
+    ani = animation.ArtistAnimation(fig, ims, interval=1000/fps, blit=True, repeat_delay=1000)
+    ani.save(filename+'.mp4')
+    
+    plt.show()
+    
 #%%
-a = skimage.measure.block_reduce(zs_blue_frames[0,:,:], (2,2), np.mean)
+    
+animate_frameseq(zs_blue_frames[0:1000,:,:], zmin = -3, zmax = 3, filename='full_test')

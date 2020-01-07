@@ -7,12 +7,6 @@ import tifffile
 import imageio
 import skimage.measure
 from matplotlib import animation
-
-os.chdir('E:/WF/11.12.2019')
-#%%
-tiffdir = '2019-12-11T13_52_25_WFSC01'
-nidaqfile = 'nidaq2019-12-11T13_52_14_WFSC01.bin'
-frames_csv = 'widefield2019-12-11T13_52_23_WFSC01.csv'
 #%%
 def load_nidaq(path, chans=10):
     '''Loads nidaq file, reshapes it and creates a dictionary with labels for each channel'''
@@ -69,7 +63,6 @@ def illum_seq(nidaq, u=5, b=6):
 
 def get_tif_fr_ilu(path, illum_seq):
     '''Loads the csv file that recorded frame# and tiff# for image acquired, then creates an array of tiff #, frame # and illumination color.'''
-    path = frames_csv
     with open(path, 'r') as csvfile:
         reader = csv.reader(csvfile)
         csvlist = list(reader)
@@ -109,7 +102,7 @@ def smooth_pool(frame_array, x=500, y=800, k=4):
         ds_blue_frames[t,:,:] = skimage.measure.block_reduce(frame_array[t,:,:], (k,k), np.mean)
     return ds_blue_frames
 
-def animate_frameseq(frame_array, zmin, zmax, filename, fps = 25, colormap = 'seismic'):
+def animate_frameseq(frame_array, zmin, zmax, filename, fps = 25, colormap = 'seismic', savefile=True):
     fig = plt.figure()
     
     ims = []
@@ -118,29 +111,31 @@ def animate_frameseq(frame_array, zmin, zmax, filename, fps = 25, colormap = 'se
         ims.append([im])
         
     ani = animation.ArtistAnimation(fig, ims, interval=1000/fps, blit=True, repeat_delay=1000)
-    ani.save(filename+'.mp4')
+    
+    if savefile == True:
+        ani.save(filename+'.mp4')
     
     plt.show()
 #%%
-nidaq, chan_labels = load_nidaq(nidaqfile)
+#os.chdir('E:/WF/11.12.2019')
 
-samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq)
+#tiffdir = '2019-12-11T13_52_25_WFSC01'
+#nidaqfile = 'nidaq2019-12-11T13_52_14_WFSC01.bin'
+#frames_csv = 'widefield2019-12-11T13_52_23_WFSC01.csv'
 
-tiffs_frames_color = get_tif_fr_ilu(frames_csv, color_seq)
+#nidaq, chan_labels = load_nidaq(nidaqfile)
 
-blue_frames, files_loaded = load_frames(samples_blu, tiffs_frames_color, color_seq, tiffdir, c=6)
+#samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq)
+
+#tiffs_frames_color = get_tif_fr_ilu(frames_csv, color_seq)
+
+#blue_frames, files_loaded = load_frames(samples_blu, tiffs_frames_color, color_seq, tiffdir, c=6)
 
 #%%
-ds_blue_frames = smooth_pool(blue_frames)
-blue_frames = None
-np.save('widefield2019-12-11T13_52_23_WFSC01', ds_blue_frames)
+#ds_blue_frames = smooth_pool(blue_frames)
+#blue_frames = None
+#np.save('widefield2019-12-11T13_52_23_WFSC01', ds_blue_frames)
 #%%z-score - turn into function
-zs_blue_frames = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0)) / np.std(ds_blue_frames, axis = 0)
-
-#%%
-
-
+#zs_blue_frames = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0)) / np.std(ds_blue_frames, axis = 0)
     
-#%%
-    
-animate_frameseq(zs_blue_frames[0:1000,:,:], zmin = -3, zmax = 3, filename='full_test')
+#animate_frameseq(zs_blue_frames[0:1000,:,:], zmin = -3, zmax = 3, filename='full_test')

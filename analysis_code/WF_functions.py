@@ -108,29 +108,6 @@ def smooth_pool(frame_array, x=500, y=800, k=4):
     for t in range(frame_array.shape[0]):
         ds_blue_frames[t,:,:] = skimage.measure.block_reduce(frame_array[t,:,:], (k,k), np.mean)
     return ds_blue_frames
-#%%
-nidaq, chan_labels = load_nidaq(nidaqfile)
-samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq)
-#color_seq=illum_seq(samples_blu, samples_uv)
-tiffs_frames_color = get_tif_fr_ilu(frames_csv, color_seq)
-#%%
-blue_frames = np.zeros((len(samples_blu),500,800), dtype=np.uint16)
-
-#%%Load frames into reconstructed full array - turn into function
-#def load_imaging_frames(tiffs_frames_color, color_seq, tiffdir, preffix = '/widefield', suffix = '.tif')
-
-
-#%%
-blue_frames, files_loaded = load_frames(samples_blu, tiffs_frames_color, color_seq, tiffdir, c=5)
-
-#%%
-ds_blue_frames = smooth_pool(blue_frames)
-blue_frames = None
-np.save('widefield2019-12-11T13_52_23_WFSC01', ds_blue_frames)
-#%%z-score - turn into function
-zs_blue_frames = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0)) / np.std(ds_blue_frames, axis = 0)
-
-#%%
 
 def animate_frameseq(frame_array, zmin, zmax, filename, fps = 25, colormap = 'seismic'):
     fig = plt.figure()
@@ -144,6 +121,25 @@ def animate_frameseq(frame_array, zmin, zmax, filename, fps = 25, colormap = 'se
     ani.save(filename+'.mp4')
     
     plt.show()
+#%%
+nidaq, chan_labels = load_nidaq(nidaqfile)
+
+samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq)
+
+tiffs_frames_color = get_tif_fr_ilu(frames_csv, color_seq)
+
+blue_frames, files_loaded = load_frames(samples_blu, tiffs_frames_color, color_seq, tiffdir, c=6)
+
+#%%
+ds_blue_frames = smooth_pool(blue_frames)
+blue_frames = None
+np.save('widefield2019-12-11T13_52_23_WFSC01', ds_blue_frames)
+#%%z-score - turn into function
+zs_blue_frames = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0)) / np.std(ds_blue_frames, axis = 0)
+
+#%%
+
+
     
 #%%
     

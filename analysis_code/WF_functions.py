@@ -80,13 +80,6 @@ def get_tif_fr_ilu(path, illum_seq):
         tiffs_frames_color[int(tiff_i), 2] = illum_seq[tiffs_frames_color[int(tiff_i)-1, 1]]
     return tiffs_frames_color
 
-def smooth_pool(frame_array, x=500, y=800, k=4):
-    '''Smooths a frame_array according to a box kernel of size k and reduces array size by taking mean of k-delimited box.'''
-    ds_blue_frames = np.empty((frame_array.shape[0], int(x/k),int(y/k)), dtype=np.uint16)
-    for t in range(frame_array.shape[0]):
-        ds_blue_frames[t,:,:] = skimage.measure.block_reduce(frame_array[t,:,:], (k,k), np.mean)
-    return ds_blue_frames
-
 def load_frames(samples, tfc_array, color_seq, tiffdir, preffix='/widefield', suffix='.tif', x=500, y=800, c=6):
     '''Samples: color to be loaded.
     tfc_array: m x 3 array with tiff number, frame number and color.
@@ -108,6 +101,13 @@ def load_frames(samples, tfc_array, color_seq, tiffdir, preffix='/widefield', su
             files_loaded.append(filename)
         
     return frame_array, files_loaded
+
+def smooth_pool(frame_array, x=500, y=800, k=4):
+    '''Smooths a frame_array according to a box kernel of size k and reduces array size by taking mean of k-delimited box.'''
+    ds_blue_frames = np.empty((frame_array.shape[0], int(x/k),int(y/k)), dtype=np.uint16)
+    for t in range(frame_array.shape[0]):
+        ds_blue_frames[t,:,:] = skimage.measure.block_reduce(frame_array[t,:,:], (k,k), np.mean)
+    return ds_blue_frames
 #%%
 nidaq, chan_labels = load_nidaq(nidaqfile)
 samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq)

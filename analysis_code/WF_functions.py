@@ -86,6 +86,28 @@ def smooth_pool(frame_array, x=500, y=800, k=4):
     for t in range(frame_array.shape[0]):
         ds_blue_frames[t,:,:] = skimage.measure.block_reduce(frame_array[t,:,:], (k,k), np.mean)
     return ds_blue_frames
+
+def load_frames(samples, tfc_array, color_seq, tiffdir, preffix='/widefield', suffix='.tif', x=500, y=800, c=6):
+    '''Samples: color to be loaded.
+    tfc_array: m x 3 array with tiff number, frame number and color.
+    color_seq: list specifying the sequence of illumination.
+    tiffdir: directory path to tiff files to be loaded.
+    c: 5 (uv) or 6 (blue).
+    
+    Returns a t,x,y array for a single color and a list of files loaded.'''
+    frame_array = np.zeros((len(samples),x,y), dtype=np.uint16)
+    files_loaded = []
+    
+    for pair in zip(tfc_array[:,0:2]):
+        tiff = pair[0][0]
+        frame = pair[0][1]
+    
+        if color_seq[frame-1] == c:
+            filename = tiffdir + preffix + str(tiff) + suffix
+            frame_array[int(frame/2),:,:] = tifffile.imread(filename)
+            files_loaded.append(filename)
+        
+    return frame_array, files_loaded
 #%%
 nidaq, chan_labels = load_nidaq(nidaqfile)
 samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq)
@@ -97,21 +119,10 @@ blue_frames = np.zeros((len(samples_blu),500,800), dtype=np.uint16)
 #%%Load frames into reconstructed full array - turn into function
 #def load_imaging_frames(tiffs_frames_color, color_seq, tiffdir, preffix = '/widefield', suffix = '.tif')
 
-preffix = '/widefield'
-suffix = '.tif'
-files_loaded = []
 
-start = time.time()
-for pair in zip(tiffs_frames_color[:,0:2]):
-    tiff = pair[0][0]
-    frame = pair[0][1]
-    
-    if color_seq[frame-1] == 6:
-        filename = tiffdir + preffix + str(tiff) + suffix
-        blue_frames[int(frame/2),:,:] = tifffile.imread( filename )
-        files_loaded.append(filename)
-elapsed_time_fl = (time.time()-start)
-print(elapsed_time_fl/60)
+#%%
+blue_frames, files_loaded = load_frames(samples_blu, tiffs_frames_color, color_seq, tiffdir, c=5)
+
 #%%
 ds_blue_frames = smooth_pool(blue_frames)
 blue_frames = None

@@ -95,19 +95,19 @@ def load_frames(samples, tfc_array, color_seq, tiffdir, preffix='/widefield', su
         
     return frame_array, files_loaded
 
-def load_and_filter(tot_frames, tfc_array, c, x=500, y=800, preffix='/widefield', suffix='.tif'):
+def load_and_filter(tot_frames, tfc_array, c, colorsequence, tiffdir, x=500, y=800, preffix='/widefield', suffix='.tif'):
     frame_array = np.zeros((tot_frames,x,y), dtype=np.uint16)
     files_loaded = []
     frames_loaded = []
     
     for tiff, frame in tfc_array[:,0:2]:
-        if color_seq[frame-1] == c:
+        if colorsequence[frame-1] == c:
             filename = tiffdir + preffix + str(tiff) + suffix
             frame_array[frame-1,:,:] = tifffile.imread(filename)
             files_loaded.append(filename)
             frames_loaded.append(frame-1)
     
-    return frame_array[frames_loaded], files_loaded
+    return frame_array[frames_loaded], files_loaded, frames_loaded
 
 def smooth_pool(frame_array, x=500, y=800, k=4):
     '''Smooths a frame_array according to a box kernel of size k and reduces array size by taking mean of k-delimited box.'''

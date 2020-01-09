@@ -95,6 +95,20 @@ def load_frames(samples, tfc_array, color_seq, tiffdir, preffix='/widefield', su
         
     return frame_array, files_loaded
 
+def load_and_filter(tot_frames, tfc_array, c, x=500, y=800, preffix='/widefield', suffix='.tif'):
+    frame_array = np.zeros((tot_frames,x,y), dtype=np.uint16)
+    files_loaded = []
+    frames_loaded = []
+    
+    for tiff, frame in tfc_array[:,0:2]:
+        if color_seq[frame-1] == c:
+            filename = tiffdir + preffix + str(tiff) + suffix
+            frame_array[frame-1,:,:] = tifffile.imread(filename)
+            files_loaded.append(filename)
+            frames_loaded.append(frame-1)
+    
+    return frame_array[frames_loaded], files_loaded
+
 def smooth_pool(frame_array, x=500, y=800, k=4):
     '''Smooths a frame_array according to a box kernel of size k and reduces array size by taking mean of k-delimited box.'''
     ds_blue_frames = np.empty((frame_array.shape[0], int(x/k),int(y/k)), dtype=np.uint16)
@@ -116,6 +130,55 @@ def animate_frameseq(frame_array, zmin, zmax, filename, fps = 25, colormap = 'se
         ani.save(filename+'.mp4')
     
     plt.show()
+
+#def extract_opto_frames(nidaq_opto, wf_samples, length_opto = 9500, length_frame = 62, pre_buffer=200, post_buffer=200):
+#    samples_opto = np.nonzero(np.diff(np.int32(nidaq_opto>1.5)) > 0)[0]
+#    trial_start = samples_opto[1:][np.diff(samples_opto)>1000]
+#    opto_trials = np.empty((len(trial_start),2), dtype='int64')
+#    opto_trials[:,0] = trial_start
+#    opto_trials[:,1] = trial_start + length_opto
+    
+#    opto_blue = []
+#    for trial in range(len(opto_trials)):    
+#        opto_blue.append(wf_samples[np.where(np.logical_and(wf_samples>=opto_trials[trial,0], wf_samples<=opto_trials[trial,1]))])
+    
+#    opto_blue_clean = []
+#    opto_blue_opto = []
+    
+#    for trial in range(len(opto_blue)):
+#        for frame in opto_blue[trial]:
+#            if (nidaq_opto[frame-pre_buffer:frame+length_frame+post_buffer] < 1.5).all():
+#                opto_blue_clean.append(frame)
+#            else:
+#                opto_blue_opto.append(frame)
+                
+#    frames_clean = [np.where(wf_samples == i)[0][0] for i in opto_blue_clean]
+#    frames_opto = [np.where(wf_samples == i)[0][0] for i in opto_blue_opto ]
+    
+#    return frames_clean, frames_opto, opto_trials
+
+    
+def extract_opto_frames(nidaq_opto, wf_samples, length_opto = 9500, length_frame = 62, pre_buffer=200, post_buffer=200):
+    opto_pulse_onset = [i for i in np.nonzero(np.diff(np.int32(nidaq_opto>1.5)) > 0)[0]]
+    opto_trial_start = np.array(opto_pulse_onset)[np.diff([0]+opto_pulse_onset)>1000]
+    opto_trial_end = opto_trial_start + length_opto
+    
+    frames_opto = []
+    frames_opto_clean = []
+    frames_opto_pulse = []
+    
+    for start, finish in zip(opto_trial_start, opto_trial_end):
+        s = wf_samples[np.where(np.logical_and(wf_samples>=start, wf_samples<=finish))]
+        if len(s)>0:
+            frames_opto.append(s)
+            
+    for trial in range(len(frames_opto)):
+        for frame in frames_opto[trial]:
+            if (nidaq_opto[frame - pre_buffer:frame+length_frame+post_buffer] < 1.5).all():
+                frames_opto_clean.append(np.where(wf_samples ==frame)[0][0])
+            else:
+                frames_opto_pulse.append(np.where(wf_samples ==frame)[0][0])
+    return frames_opto_clean, frames_opto_pulse, opto_trial_start, opto_trial_end
 #%%
 #os.chdir('E:/WF/11.12.2019')
 

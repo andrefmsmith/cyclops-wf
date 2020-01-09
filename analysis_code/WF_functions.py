@@ -98,14 +98,14 @@ def load_frames(samples, tfc_array, color_seq, tiffdir, preffix='/widefield', su
 def load_and_filter(tot_frames, tfc_array, c, colorsequence, tiffdir, x=500, y=800, preffix='/widefield', suffix='.tif'):
     frame_array = np.zeros((tot_frames,x,y), dtype=np.uint16)
     files_loaded = []
-    frames_loaded = []
+    frames_loaded = np.where(np.array(colorsequence)==c)[0]
     
     for tiff, frame in tfc_array[:,0:2]:
         if colorsequence[frame-1] == c:
             filename = tiffdir + preffix + str(tiff) + suffix
             frame_array[frame-1,:,:] = tifffile.imread(filename)
             files_loaded.append(filename)
-            frames_loaded.append(frame-1)
+            #frames_loaded.append(frame-1)
     
     return frame_array[frames_loaded], files_loaded, frames_loaded
 

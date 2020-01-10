@@ -32,27 +32,15 @@ def illum_seq(nidaq, tiff_folder, u=5, b=6):
     total_tiffs = len(os.listdir(tiff_folder))
     
     color_seq = []
-    i = 0
-    while i < max(len(samples_blu), len(samples_uv))-1:
-        if samples_blu[i]<samples_uv[i]:
-            color_seq.append(6) #blue chan index
-            if samples_uv[i]<samples_blu[i+1]:
-                color_seq.append(5) #uv
-            else:
-                color_seq.append(6) #uv
-        else:
-            color_seq.append(5) #uv chan index
-            if samples_blu[i]<samples_uv[i+1]:
-                color_seq.append(6) #uv
-            else:
-                color_seq.append(5) #uv
-        i+=1
-    if samples_blu[-1]<samples_uv[-1]:
-        color_seq.append(6) #blue chan index
-        color_seq.append(5) #uv chan index
+    if samples_uv[0]<samples_blu[0]:
+        color_seq.append(u)
     else:
-        color_seq.append(5) #uv chan index
-        color_seq.append(6) #blue chan index
+        color_seq.append(b)
+    while len(color_seq)<total_frames:
+        if color_seq[-1]==u:
+            color_seq.append(b)
+        else:
+            color_seq.append(u)
         
     if sum(np.diff(abs(np.diff(color_seq)))) == 0:
         print('Illumination sequence is as predicted.')

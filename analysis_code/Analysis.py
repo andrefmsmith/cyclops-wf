@@ -15,9 +15,40 @@ from WF_functions import load_nidaq, illum_seq, get_tif_fr_ilu, load_and_filter,
 #%%
 os.chdir('E:/WF/11.12.2019')
 
-tiffdir = '2019-12-11T13_52_25_WFSC01'
-nidaqfile = 'nidaq2019-12-11T13_52_14_WFSC01.bin'
-frames_csv = 'widefield2019-12-11T13_52_23_WFSC01.csv'
+tiffdir = '2019-12-11T12_47_01_WFSC02'
+nidaqfile = 'nidaq2019-12-11T12_47_09_WFSC02.bin'
+frames_csv = 'widefield2019-12-11T12_46_59_WFSC02.csv'
+#%%
+def illum_seq(nidaq, tiff_folder, u=5, b=6):
+    '''1. Obtains UV and Blue illumination onsets from nidaq.
+    2. Calculates total_frames and total_tiffs captured.
+    3. Establishes the illumination sequence sent during the experiment.
+    4 Returns this sequence, UV and blue sample onsets, total_frames and total_tiffs captured.'''
+    
+    uv = np.diff(np.int32(nidaq[u,:]>1.5)) > 0
+    blu = np.diff(np.int32(nidaq[b,:]>1.5)) > 0
+    samples_uv = np.nonzero(uv)[0]
+    samples_blu = np.nonzero(blu)[0]
+    total_frames = len(samples_uv) + len(samples_blu)
+    total_tiffs = len(os.listdir(tiff_folder))
+    
+    color_seq = []
+    if samples_uv[0]<samples_blu[0]:
+        color_seq.append(u)
+    else:
+        color_seq.append(b)
+    while len(color_seq)<total_frames:
+        if color_seq[-1]==u:
+            color_seq.append(b)
+        else:
+            color_seq.append(u)
+        
+    if sum(np.diff(abs(np.diff(color_seq)))) == 0:
+        print('Illumination sequence is as predicted.')
+    else:
+        print('Check illumination sequence.')
+            
+    return samples_uv+1, samples_blu+1, total_frames, total_tiffs, color_seq
 #%%
 nidaq, chan_labels = load_nidaq(nidaqfile)
 
@@ -28,7 +59,7 @@ tiffs_frames_color = get_tif_fr_ilu(frames_csv, color_seq)
 blue_frames, files_loaded_blue, frames_loaded_blue = load_and_filter(tot_frames=total_frames, tfc_array=tiffs_frames_color, c=6, colorsequence=color_seq, tiffdir=tiffdir)
 ds_blue_frames = smooth_pool(blue_frames, k=5)
 blue_frames = None
-#load uv frames, downsample
+#%%load uv frames, downsample
 uv_frames, files_loaded_uv, frames_loaded_uv = load_and_filter(tot_frames=total_frames, tfc_array=tiffs_frames_color, c=5, colorsequence=color_seq, tiffdir=tiffdir)
 ds_uv_frames = smooth_pool(uv_frames, k=5)
 uv_frames = None

@@ -59,7 +59,7 @@ def illum_seq(nidaq, tiff_folder, u=5, b=6):
     else:
         print('Check illumination sequence.')
             
-    return samples_uv, samples_blu, total_frames, total_tiffs, color_seq
+    return samples_uv+1, samples_blu+1, total_frames, total_tiffs, color_seq
 
 def get_tif_fr_ilu(path, illum_seq):
     '''Loads the csv file that recorded frame# and tiff# for image acquired, then creates an array of tiff #, frame # and illumination color.'''
@@ -158,27 +158,38 @@ def animate_frameseq(frame_array, zmin, zmax, filename, fps = 25, colormap = 'se
 #    return frames_clean, frames_opto, opto_trials
 
     
-def extract_opto_frames(nidaq_opto, wf_samples, length_opto = 9500, length_frame = 62, pre_buffer=200, post_buffer=200):
+def extract_opto_frames(nidaq_opto, wf_samples, length_opto = 9500, length_frame = 61, buffer=10):
     opto_pulse_onset = [i for i in np.nonzero(np.diff(np.int32(nidaq_opto>1.5)) > 0)[0]]
     opto_trial_start = np.array(opto_pulse_onset)[np.diff([0]+opto_pulse_onset)>1000]
     opto_trial_end = opto_trial_start + length_opto
     
-    frames_opto = []
+    im_samples_opto = []
     frames_opto_clean = []
     frames_opto_pulse = []
     
     for start, finish in zip(opto_trial_start, opto_trial_end):
-        s = wf_samples[np.where(np.logical_and(wf_samples>=start, wf_samples<=finish))]
+        s = wf_samples[np.where(np.logical_and(wf_samples>=start, wf_samples+length_frame<=finish))]
         if len(s)>0:
-            frames_opto.append(s)
+            im_samples_opto.append(s)
             
-    for trial in range(len(frames_opto)):
-        for frame in frames_opto[trial]:
-            if (nidaq_opto[frame - pre_buffer:frame+length_frame+post_buffer] < 1.5).all():
+    for trial in range(len(im_samples_opto)):
+        for frame in im_samples_opto[trial]:
+            if (nidaq_opto[frame - buffer:frame+length_frame+buffer] < 1.5).all():
                 frames_opto_clean.append(np.where(wf_samples ==frame)[0][0])
             else:
                 frames_opto_pulse.append(np.where(wf_samples ==frame)[0][0])
-    return frames_opto_clean, frames_opto_pulse, opto_trial_start, opto_trial_end
+    return frames_opto_clean, frames_opto_pulse, opto_trial_start, opto_trial_end, im_samples_opto
+
+def subtract_opto(frames_opto_pulse_b, frames_opto_pulse_uv, samples_blu,samples_uv):
+    clean_pulse = np.empty((len(frames_opto_pulse_b),4), dtype=np.int64)
+    
+    for i in range(len(frames_opto_pulse_b)):
+        clean_pulse[i,0] = frames_opto_pulse_b[i]
+        clean_pulse[i,1] = frames_opto_pulse_uv[np.argmin(abs(samples_blu[frames_opto_pulse_b[i]] - samples_uv[frames_opto_pulse_uv]))]
+        clean_pulse[i,2] = samples_blu[clean_pulse[i,0]]
+        clean_pulse[i,3] = samples_uv[clean_pulse[i,1]]
+        
+    return clean_pulse
 #%%
 #os.chdir('E:/WF/11.12.2019')
 

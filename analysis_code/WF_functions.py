@@ -178,6 +178,50 @@ def subtract_opto(frames_opto_pulse_b, frames_opto_pulse_uv, samples_blu,samples
         clean_pulse[i,3] = samples_uv[clean_pulse[i,1]]
         
     return clean_pulse
+
+def get_target_frames(optogen_samples, target, samples_im, clean_frames):
+    '''optogen_samples: samples_opto_b a list of np arrays with the opto samples for an imaging color per trial.
+    target: the target frame we're searching for, first, second, 3rd, last etc, as an index.
+    samples_im: samples_blu, the list of samples for each imaging frame
+    clean_frames: frames_opto_clean_b, list of frames without opto pulse visible to filter from.'''
+    frames_opto_b = [[]]*len(optogen_samples)
+    temp = []
+    
+    trial = 0
+    while trial < len(frames_opto_b):
+        for sample in optogen_samples[trial]:
+            temp.append( np.where(samples_im==sample)[0][0])
+        frames_opto_b[trial] = temp
+        trial +=1
+        temp = []
+    #%
+    temp = []
+    target_frame = []
+    
+    trial = 0
+    while trial < len(frames_opto_b):
+        for frame in frames_opto_b[trial]:
+            if frame in clean_frames:
+                temp.append(frame)
+        target_frame.append((temp[target]))
+        temp = []
+        trial += 1
+    
+    return target_frame
+
+def plot_result(title,framelist,imaging,baselines,save,x=100,y=160,z=0.6):
+    result_ = np.empty((len(framelist), x,y))
+    for i in range(len(framelist)):
+        result_[i,:,:]=imaging[framelist[i]] - baselines[i]
+    result_trial = np.mean(result_, axis = 0)
+    
+    plt.imshow(result_trial, vmin=-z, vmax=z,cmap='seismic')
+    plt.title(title)
+    plt.axis('off')
+    if save=='on':
+        plt.savefig(title+'.png')
+        
+    return result_
 #%%
 #os.chdir('E:/WF/11.12.2019')
 

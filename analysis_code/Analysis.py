@@ -11,7 +11,7 @@ import sys
 
 sys.path.insert(1, 'E:/WF/cyclops-wf/analysis_code/')
 
-from WF_functions import load_nidaq, illum_seq, get_tif_fr_ilu, load_and_filter, smooth_pool, animate_frameseq, extract_opto_frames
+from WF_functions import load_nidaq, illum_seq, get_tif_fr_ilu, load_and_filter, smooth_pool, animate_frameseq, extract_opto_frames, get_target_frames, plot_result
 #%%
 os.chdir('E:/WF/12.12.2019')
 
@@ -74,89 +74,15 @@ for i in range(len(bl_frames)):
     last = np.where(samples_blu == samples_opto_b[i][0])[0][0] - 1
     first = last - 12
     bl_frames[i,:,:] = np.mean(zs_blue[first:last,:,:], axis = 0)
-#%%Find frames of interest within clean frames
+#%%Get frames of interest for plotting
+frame_1 = get_target_frames(samples_opto_b, 0, samples_blu, frames_opto_clean_b)
+frame_2 = get_target_frames(samples_opto_b, 1, samples_blu, frames_opto_clean_b)
+frame_3 = get_target_frames(samples_opto_b, 2, samples_blu, frames_opto_clean_b)
+frame_last = get_target_frames(samples_opto_b, -1, samples_blu, frames_opto_clean_b)
 
-def get_target_frames(optogen_samples, target, samples_im, clean_frames):
-    '''optogen_samples: samples_opto_b a list of np arrays with the opto samples for an imaging color per trial.
-    target: the target frame we're searching for, first, second, 3rd, last etc, as an index.
-    samples_im: samples_blu, the list of samples for each imaging frame
-    clean_frames: frames_opto_clean_b, list of frames without opto pulse visible to filter from.'''
-    frames_opto_b = [[]]*len(optogen_samples)
-    temp = []
-    
-    trial = 0
-    while trial < len(frames_opto_b):
-        for sample in optogen_samples[trial]:
-            temp.append( np.where(samples_im==sample)[0][0])
-        frames_opto_b[trial] = temp
-        trial +=1
-        temp = []
-    #%
-    temp = []
-    target_frame = []
-    
-    trial = 0
-    while trial < len(frames_opto_b):
-        for frame in frames_opto_b[trial]:
-            if frame in clean_frames:
-                temp.append(frame)
-        target_frame.append((temp[target]))
-        temp = []
-        trial += 1
-    
-    return target_frame
+#%%Plot and save frames of interest
+result_frame3 = plot_result('Frame_3 wfVLGN02',frame_3,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
 
-#%%
-
-
-#%%Save output for frames of interest
-title = '_First_frame_clean'
-result_first_frame = np.empty((len(first_frame), 100,160))
-for i in range(len(first_frame)):
-    result_first_frame[i,:,:]=zs_blue[first_frame[i]] - bl_frames[i]
-plt.figure()
-plt.imshow(np.mean(result_first_frame, axis=0), vmin=-0.6, vmax=0.6, cmap = 'seismic')
-plt.title(title)
-plt.axis('off')
-
-#plt.savefig(tiffdir+title+'.png')
-#plt.close()
-#%%
-title = '_Second_frame_clean'
-result_second_frame = np.empty((len(second_frame), 100,160))
-for i in range(len(first_frame)):
-    result_second_frame[i,:,:]=zs_blue[second_frame[i]] - bl_frames[i]
-plt.figure()
-plt.imshow(np.mean(result_second_frame, axis=0), vmin=-0.6, vmax=0.6, cmap='seismic')
-plt.title(title)
-plt.axis('off')
-
-#plt.savefig(tiffdir+title+'.png')
-#plt.close()
-#%%
-title = '_Last_frame_clean'
-result_last_frame = np.empty((len(last_frame), 100,160))
-for i in range(len(first_frame)):
-    result_last_frame[i,:,:]=zs_blue[last_frame[i]] - bl_frames[i]
-plt.figure()
-plt.imshow(np.mean(result_last_frame, axis=0), vmin=-0.6, vmax=0.6, cmap = 'seismic')
-plt.title(title)
-plt.axis('off')
-
-#plt.savefig(tiffdir+title+'.png')
-#plt.close()
-#%%
-title = '_Average_allframes_clean'
-#result_avg = np.empty_like(bl_frames)
-#for i in range(len(bl_frames)):
-result_avg= np.mean(zs_blue[frames_opto_clean_b], axis = 0) - np.mean(bl_frames,axis=0)
-plt.figure()
-plt.imshow(result_avg, cmap='seismic', vmin=-0.6, vmax=0.6)
-plt.title(title)
-plt.axis('off')
-
-#plt.savefig(tiffdir+title+'.png')
-#plt.close()
 #%%Z score by baseline
 #bl_frames_raw = np.empty((len(samples_opto_b),12,100,160), dtype=np.float64)
 

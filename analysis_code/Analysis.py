@@ -60,33 +60,19 @@ frame_1 = get_target_frames(samples_opto_b, 0, samples_blu, frames_opto_clean_b)
 frame_2 = get_target_frames(samples_opto_b, 1, samples_blu, frames_opto_clean_b)
 frame_3 = get_target_frames(samples_opto_b, 2, samples_blu, frames_opto_clean_b)
 
+frame_3last = get_target_frames(samples_opto_b, -3, samples_blu, frames_opto_clean_b)
 frame_2last = get_target_frames(samples_opto_b, -2, samples_blu, frames_opto_clean_b)
 frame_1last = get_target_frames(samples_opto_b, -1, samples_blu, frames_opto_clean_b)
 
 #%%Plot and save frames of interest
 animal = 'wfVLGN02_'
 session = 'session1'
+saving = 'on'
 
-result_frame1 = plot_result(animal+session+'_Frame_1',frame_1,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
-result_frame2 = plot_result(animal+session+'_Frame_2',frame_2,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
-result_frame3 = plot_result(animal+session+'_Frame_3',frame_3,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
+result_frame1 = plot_result(animal+session+'_Frame_1',frame_1,zs_blue,bl_frames,save=saving,x=100,y=160,z=0.6)
+result_frame2 = plot_result(animal+session+'_Frame_2',frame_2,zs_blue,bl_frames,save=saving,x=100,y=160,z=0.6)
+result_frame3 = plot_result(animal+session+'_Frame_3',frame_3,zs_blue,bl_frames,save=saving,x=100,y=160,z=0.6)
 
-result_frame2last = plot_result(animal+session+'_Frame_-2',frame_2last,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
-result_frame1last = plot_result(animal+session+'_Frame_-1',frame_1last,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
-
-#%%Z score by baseline
-#bl_frames_raw = np.empty((len(samples_opto_b),12,100,160), dtype=np.float64)
-
-#for i in range(len(bl_frames)):
-#    last = np.where(samples_blu == samples_opto_b[i][0])[0][0] - 1
-#    first = last - 12
-#    bl_frames_raw[i,:,:,:] = ds_blue_frames[first:last,:,:]
-#%
-#title = '_First_frame_clean'
-#result_first_frame_bl = np.empty((len(first_frame), 100,160))
-#for i in range(len(first_frame)):
-#    result_first_frame_bl[i,:,:]=(ds_blue_frames[first_frame[i]] - np.mean(bl_frames_raw[i,:,:,:], axis =0 ))/ np.std(bl_frames_raw[i,:,:,:], axis=0)
-#plt.figure()
-#plt.imshow(np.mean(result_first_frame_bl, axis=0), vmin=-1, vmax=1, cmap = 'seismic')
-#plt.title(title)
-#plt.axis('off')
+result_frame3last = plot_result(animal+session+'_Frame_-3',frame_3last,zs_blue,bl_frames,save=saving,x=100,y=160,z=0.6)
+result_frame2last = plot_result(animal+session+'_Frame_-2',frame_2last,zs_blue,bl_frames,save=saving,x=100,y=160,z=0.6)
+result_frame1last = plot_result(animal+session+'_Frame_-1',frame_1last,zs_blue,bl_frames,save=saving,x=100,y=160,z=0.6)

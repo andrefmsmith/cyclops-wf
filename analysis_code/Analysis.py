@@ -45,27 +45,8 @@ for frame in range(len(ds_uv_frames)):
 #%%extract opto frames, separate into clean and during pulse
 frames_opto_clean_b, frames_opto_pulse_b, opto_trial_start, opto_trial_end, samples_opto_b = extract_opto_frames(nidaq[3,:], samples_blu, buffer = 100)
 #frames_opto_clean_uv, frames_opto_pulse_uv, opto_trial_start, opto_trial_end, samples_opto_uv = extract_opto_frames(nidaq[3,:], samples_uv, buffer = 100)
-#%%Hemodynamic or normalisation
-avg_blue = np.mean(ds_blue_frames, axis = 0)
-avg_uv = np.mean(ds_uv_frames, axis = 0)
 
-hemo = np.empty_like(ds_blue_frames)
-
-if color_seq[0]==6:
-    hemo[0,:,:] = avg_uv
-    hemo[-1,:,:] = avg_uv
-    for i in range(1,len(hemo)-1):
-        hemo[i,:,:] = np.mean((ds_uv_frames[i-1], ds_uv_frames[i]), axis = 0)
-        
-if color_seq[0]==5:
-    hemo[0,:,:] = np.mean(ds_uv_frames, axis = 0)
-    hemo[-1,:,:] = np.mean(ds_uv_frames, axis = 0)
-    for i in range(1,len(hemo)-1):
-        hemo[i,:,:] = np.mean((ds_uv_frames[i], ds_uv_frames[i+1]), axis = 0)
-
-hemo_corr = (ds_blue_frames/hemo)/(avg_blue/np.mean(hemo, axis=0))
-hemo_corr_norm = hemo_corr/np.std(hemo_corr, axis = 0)
-#%%
+#%%Z score whole recording
 zs_blue = (ds_blue_frames - np.mean(ds_blue_frames, axis = 0))/np.std(ds_blue_frames, axis = 0)
 #%%Obtain baselines for each opto trial
 bl_frames = np.empty((len(samples_opto_b),100,160), dtype=np.float64)
@@ -78,10 +59,20 @@ for i in range(len(bl_frames)):
 frame_1 = get_target_frames(samples_opto_b, 0, samples_blu, frames_opto_clean_b)
 frame_2 = get_target_frames(samples_opto_b, 1, samples_blu, frames_opto_clean_b)
 frame_3 = get_target_frames(samples_opto_b, 2, samples_blu, frames_opto_clean_b)
-frame_last = get_target_frames(samples_opto_b, -1, samples_blu, frames_opto_clean_b)
+
+frame_2last = get_target_frames(samples_opto_b, -2, samples_blu, frames_opto_clean_b)
+frame_1last = get_target_frames(samples_opto_b, -1, samples_blu, frames_opto_clean_b)
 
 #%%Plot and save frames of interest
-result_frame3 = plot_result('Frame_3 wfVLGN02',frame_3,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
+animal = 'wfVLGN02_'
+session = 'session1'
+
+result_frame1 = plot_result(animal+session+'_Frame_1',frame_1,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
+result_frame2 = plot_result(animal+session+'_Frame_2',frame_2,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
+result_frame3 = plot_result(animal+session+'_Frame_3',frame_3,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
+
+result_frame2last = plot_result(animal+session+'_Frame_-2',frame_2last,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
+result_frame1last = plot_result(animal+session+'_Frame_-1',frame_1last,zs_blue,bl_frames,save='off',x=100,y=160,z=0.6)
 
 #%%Z score by baseline
 #bl_frames_raw = np.empty((len(samples_opto_b),12,100,160), dtype=np.float64)

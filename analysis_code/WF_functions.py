@@ -215,6 +215,7 @@ def plot_result(title,framelist,imaging,baselines,save,x=100,y=160,z=0.6):
         result_[i,:,:]=imaging[framelist[i]] - baselines[i]
     result_trial = np.mean(result_, axis = 0)
     
+    plt.figure()
     plt.imshow(result_trial, vmin=-z, vmax=z,cmap='seismic')
     plt.title(title)
     plt.axis('off')
@@ -222,6 +223,34 @@ def plot_result(title,framelist,imaging,baselines,save,x=100,y=160,z=0.6):
         plt.savefig(title+'.png')
         
     return result_
+
+def hemo_corr(blue_imaging, uv_imaging, colorsequence, norm):
+    
+    avg_blue = np.mean(blue_imaging, axis = 0)
+    avg_uv = np.mean(uv_imaging, axis = 0)
+
+    hemo = np.empty_like(blue_imaging)
+
+    if colorsequence[0]==6:
+        hemo[0,:,:] = avg_uv
+        hemo[-1,:,:] = avg_uv
+        for i in range(1,len(hemo)-1):
+            hemo[i,:,:] = np.mean((uv_imaging[i-1], uv_imaging[i]), axis = 0)
+        
+    if color_seq[0]==5:
+        hemo[0,:,:] = avg_uv
+        hemo[-1,:,:] = avg_uv
+        for i in range(1,len(hemo)-1):
+            hemo[i,:,:] = np.mean((uv_imaging[i], uv_imaging[i+1]), axis = 0)
+
+    hemo_corr = (blue_imaging/hemo)/(avg_blue/np.mean(hemo, axis=0))
+    hemo_corr_norm = hemo_corr/np.std(hemo_corr, axis = 0)
+    
+    if norm==1:
+        return hemo_corr_norm
+    else:
+        return hemo_corr
+
 #%%
 #os.chdir('E:/WF/11.12.2019')
 

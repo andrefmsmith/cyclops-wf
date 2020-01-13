@@ -237,7 +237,7 @@ def hemo_corr(blue_imaging, uv_imaging, colorsequence, norm):
         for i in range(1,len(hemo)-1):
             hemo[i,:,:] = np.mean((uv_imaging[i-1], uv_imaging[i]), axis = 0)
         
-    if color_seq[0]==5:
+    if colorsequence[0]==5:
         hemo[0,:,:] = avg_uv
         hemo[-1,:,:] = avg_uv
         for i in range(1,len(hemo)-1):

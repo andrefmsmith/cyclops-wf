@@ -13,14 +13,14 @@ sys.path.insert(1, 'E:/WF/cyclops-wf/analysis_code/')
 
 from WF_functions import load_nidaq, illum_seq, get_tif_fr_ilu, load_and_filter, smooth_pool, animate_frameseq, extract_opto_frames, get_target_frames, plot_result
 #%%
-os.chdir('E:/WF/12.12.2019')
+os.chdir('E:/WF/17.12.2019')
 
-tiffdir = '2019-12-12T10_50_12_WFvlgn02'
-nidaqfile = 'nidaq2019-12-12T10_50_07_WFvlgn02.bin'
-frames_csv = 'widefield2019-12-12T10_50_10_WFvlgn02.csv'
+tiffdir = '2019-12-17T10_45_06_WFvlgn01_s2'
+nidaqfile = 'nidaq2019-12-17T10_45_13_WFvlgn01_s2.bin'
+frames_csv = 'widefield2019-12-17T10_45_04_WFvlgn01_s2.csv'
 
-animal = 'wfVLGN02'
-session = 'session1'
+animal = 'wfVLGN01'
+session = 'session2'
 #%%
 nidaq, chan_labels = load_nidaq(nidaqfile)
 
@@ -29,22 +29,14 @@ samples_uv, samples_blu, total_frames, total_tiffs, color_seq = illum_seq(nidaq,
 tiffs_frames_color = get_tif_fr_ilu(frames_csv, color_seq)
 #%%load blue frames, downsample
 blue_frames, files_loaded_blue, frames_loaded_blue = load_and_filter(tot_frames=total_frames, tfc_array=tiffs_frames_color, c=6, colorsequence=color_seq, tiffdir=tiffdir)
+#%%
 ds_blue_frames = smooth_pool(blue_frames, k=5)
 blue_frames = None
-#%%load uv frames, downsample
-uv_frames, files_loaded_uv, frames_loaded_uv = load_and_filter(tot_frames=total_frames, tfc_array=tiffs_frames_color, c=5, colorsequence=color_seq, tiffdir=tiffdir)
-ds_uv_frames = smooth_pool(uv_frames, k=5)
-uv_frames = None
 #%%fill in empty frames
 avg_frame = np.mean(ds_blue_frames, axis = 0)
 for frame in range(len(ds_blue_frames)):
     if np.sum(ds_blue_frames[frame]) == 0:
         ds_blue_frames[frame] = avg_frame
-#%%
-avg_frame = np.mean(ds_uv_frames, axis = 0)
-for frame in range(len(ds_uv_frames)):
-    if np.sum(ds_uv_frames[frame]) == 0:
-        ds_uv_frames[frame] = avg_frame
 #%%extract opto frames, separate into clean and during pulse
 frames_opto_clean_b, frames_opto_pulse_b, opto_trial_start, opto_trial_end, samples_opto_b = extract_opto_frames(nidaq[3,:], samples_blu, buffer = 100)
 #frames_opto_clean_uv, frames_opto_pulse_uv, opto_trial_start, opto_trial_end, samples_opto_uv = extract_opto_frames(nidaq[3,:], samples_uv, buffer = 100)
@@ -82,3 +74,5 @@ plt.figure()
 plt.imshow(np.mean(ds_blue_frames, axis=0), cmap='Greys')
 if saving =='on':
     plt.savefig(animal+session+'_avg_frame')
+#%%
+np.save(animal+session, zs_blue)

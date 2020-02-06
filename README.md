@@ -1,6 +1,8 @@
 # Cyclops Wide-Field Rig
 This is a repository for the Cyclops wide-field calcium imaging rig built by myself and [G. Lopes](https://neurogears.org/) for my experiments conducted at the [Hofer](https://www.sainsburywellcome.org/web/groups/hofer-lab) and [Mrsic-Flogel](https://www.sainsburywellcome.org/web/groups/mrsic-flogel-lab) labs at the Sainsbury-Wellcome Centre.
 
+Wide-field calcium imaging is an exciting approach for functional imaging of the mouse brain whereby activity across the entire dorsal surface of the cerebral cortex can be imaged and observed in real-time with minimal processing, while the head-fixed animal engages in a behavioural task. It is in use by multiple labs around the world to provide insight about mesoscale dynamics and interactions between cortical networks in behaving animals.
+
 The rig was built from scratch from specifications identical to the setups created and developed originally by Ivana Orsolic and Kelly Clancy, as seen in the following publications:
 - [Orsolic et al., 2019: Mesoscale cortical dynamics reflect the interaction of sensory evidence and temporal expectation during perceptual decision-making](https://www.biorxiv.org/content/10.1101/552026v1)
 - [Clancy et al., 2019: Locomotion-dependent remapping of distributed cortical networks](https://www.nature.com/articles/s41593-019-0357-8)

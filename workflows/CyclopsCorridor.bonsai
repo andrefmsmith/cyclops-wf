@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <WorkflowBuilder Version="2.4.0"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
@@ -751,7 +751,7 @@ Item1[int32(Item2) % Item1.Length + 1] as Angle3)</scr:Expression>
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="bv:AngleProperty">
-                      <bv:Value>91.64731</bv:Value>
+                      <bv:Value>-13.350275</bv:Value>
                     </Combinator>
                   </Expression>
                   <Expression xsi:type="PropertyMapping">
@@ -814,7 +814,7 @@ Item1[int32(Item2) % Item1.Length + 1] as Angle3)</scr:Expression>
                         <Expression xsi:type="Combinator">
                           <Combinator xsi:type="gl:RotateZ">
                             <gl:Order>Prepend</gl:Order>
-                            <gl:Angle>1.59954727</gl:Angle>
+                            <gl:Angle>-0.233006254</gl:Angle>
                           </Combinator>
                         </Expression>
                         <Expression xsi:type="Combinator">
@@ -893,7 +893,7 @@ Item1[int32(Item2) % Item1.Length + 1] as Angle3)</scr:Expression>
                               </Expression>
                               <Expression xsi:type="Combinator">
                                 <Combinator xsi:type="FloatProperty">
-                                  <Value>1.59954727</Value>
+                                  <Value>-0.233006254</Value>
                                 </Combinator>
                               </Expression>
                               <Expression xsi:type="ExternalizedMapping">
@@ -1170,7 +1170,7 @@ Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="bv:AngleProperty">
-                      <bv:Value>40.33093</bv:Value>
+                      <bv:Value>145.726273</bv:Value>
                     </Combinator>
                   </Expression>
                   <Expression xsi:type="PropertyMapping">
@@ -1233,7 +1233,7 @@ Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
                         <Expression xsi:type="Combinator">
                           <Combinator xsi:type="gl:RotateZ">
                             <gl:Order>Prepend</gl:Order>
-                            <gl:Angle>0.7039075</gl:Angle>
+                            <gl:Angle>2.54340339</gl:Angle>
                           </Combinator>
                         </Expression>
                         <Expression xsi:type="Combinator">
@@ -1312,7 +1312,7 @@ Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
                               </Expression>
                               <Expression xsi:type="Combinator">
                                 <Combinator xsi:type="FloatProperty">
-                                  <Value>0.7039075</Value>
+                                  <Value>2.54340339</Value>
                                 </Combinator>
                               </Expression>
                               <Expression xsi:type="ExternalizedMapping">
@@ -1589,7 +1589,7 @@ Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="bv:AngleProperty">
-                      <bv:Value>50.03122</bv:Value>
+                      <bv:Value>80.8969</bv:Value>
                     </Combinator>
                   </Expression>
                   <Expression xsi:type="PropertyMapping">
@@ -1652,7 +1652,7 @@ Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
                         <Expression xsi:type="Combinator">
                           <Combinator xsi:type="gl:RotateZ">
                             <gl:Order>Prepend</gl:Order>
-                            <gl:Angle>0.873209536</gl:Angle>
+                            <gl:Angle>1.41191721</gl:Angle>
                           </Combinator>
                         </Expression>
                         <Expression xsi:type="Combinator">
@@ -1731,7 +1731,7 @@ Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
                               </Expression>
                               <Expression xsi:type="Combinator">
                                 <Combinator xsi:type="FloatProperty">
-                                  <Value>0.873209536</Value>
+                                  <Value>1.41191721</Value>
                                 </Combinator>
                               </Expression>
                               <Expression xsi:type="ExternalizedMapping">
@@ -2199,7 +2199,7 @@ Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="rx:Timer">
-                      <rx:DueTime>PT15.913S</rx:DueTime>
+                      <rx:DueTime>PT6.691S</rx:DueTime>
                       <rx:Period>PT0S</rx:Period>
                     </Combinator>
                   </Expression>
@@ -2230,7 +2230,7 @@ Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
                   </Expression>
                   <Expression xsi:type="PropertySource" TypeArguments="dsp:FunctionGenerator,sys:Int32">
                     <MemberName>BufferLength</MemberName>
-                    <Value>3000</Value>
+                    <Value>1000</Value>
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="rx:First" />
@@ -2307,7 +2307,7 @@ Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
                   </Expression>
                   <Expression xsi:type="Combinator">
                     <Combinator xsi:type="dsp:FunctionGenerator">
-                      <dsp:BufferLength>30000</dsp:BufferLength>
+                      <dsp:BufferLength>10000</dsp:BufferLength>
                       <dsp:Frequency>10</dsp:Frequency>
                       <dsp:Waveform>Sawtooth</dsp:Waveform>
                       <dsp:SampleRate>10000</dsp:SampleRate>
@@ -2343,7 +2343,7 @@ Math.Sqrt((Item1 * Math.Cos(Item4) * Item1 * Math.Cos(Item4)) +
                       <mx:SampleRate>10000</mx:SampleRate>
                       <mx:ActiveEdge>Rising</mx:ActiveEdge>
                       <mx:SampleMode>FiniteSamples</mx:SampleMode>
-                      <mx:BufferSize>30000</mx:BufferSize>
+                      <mx:BufferSize>10000</mx:BufferSize>
                       <mx:Channels>
                         <mx:AnalogOutputChannelConfiguration>
                           <mx:ChannelName />
